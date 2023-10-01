@@ -6,10 +6,10 @@ import { useAuth } from "../AuthProvider";
 const host = process.env.REACT_APP_URL;
 
 const Signin = () => {
-  const { setToken } = useAuth();
+  const { token, setToken } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  //   const navigate = useNavigate();
+  const navigate = useNavigate();
 
   useEffect(() => {
     // console.log({ username, password });
@@ -35,7 +35,10 @@ const Signin = () => {
               }
               return res;
             })
-            .then((res) => setToken(res.data));
+            .then((res) => {
+              setToken(res.data);
+              navigate("/orders");
+            });
           // ^^ this stays tho
         }}
       >
@@ -61,9 +64,12 @@ const Signin = () => {
         </label>
         <input type="submit" className="submit" value="Signin!" />
       </form>
-      <p>
-        Don't have an account? <Link to="/signup">Visit our Signup page</Link>
-      </p>
+
+      {!token.length ? (
+        <p>
+          Don't have an account? <Link to="/signup">Visit our Signup page</Link>
+        </p>
+      ) : null}
     </>
   );
 };

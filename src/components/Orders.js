@@ -13,7 +13,7 @@ function Orders() {
   //   const navigate = useNavigate();
   useEffect(() => {
     if (token.length) {
-      console.log(`in Orders useEffect hook if(props), ${token}`);
+      console.log(`in Orders useEffect hook if(props.length), ${token}`);
       axios
         .get(`${host}/orders`, {
           headers: {
