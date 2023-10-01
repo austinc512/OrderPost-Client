@@ -19,12 +19,13 @@ const Navigation = () => {
         <h3>OrderPost</h3>
       </div>
       <div className="nav-right">
-        {!token.length ? <Link to="/">Signin</Link> : null}
         {token.length ? <Link to="/orders">Orders</Link> : null}
         {token.length ? <Link to="/products">Products</Link> : null}
         {token.length ? <Link to="/customers">Customers</Link> : null}
         {token.length ? <Link to="/shipments">Shipments</Link> : null}
         {token.length ? <Link to="/warehouses">Warehouses</Link> : null}
+        {token.length ? <span className="separator">|</span> : null}
+        {!token.length ? <Link to="/">Signin</Link> : null}
         {token.length ? (
           <Link
             to="/"

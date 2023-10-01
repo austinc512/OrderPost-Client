@@ -1,5 +1,9 @@
+* {
+  box-sizing: border-box;
+}
+
 body {
-  background-color: grey !important;
+  background-color: #f2f2f2;
 }
 
 .nav {
@@ -19,6 +23,8 @@ body {
   /* display: inline; */
   /* line-height: 77%; */
   margin: 10px 0;
+  color: white;
+  font-weight: 525;
 }
 
 .nav-left {
@@ -31,17 +37,24 @@ body {
   width: 50%;
   gap: 2rem;
   margin-right: 3rem;
+  align-items: center;
 }
 
-a {
+.nav-right a {
   color: white;
   text-decoration: none;
 }
 
-a:visited {
+.nav-right a:visited {
   color: white;
   text-decoration: none;
 }
-a:active {
+.nav-right a:active {
   color: yellow;
+}
+
+.separator {
+  color: white;
+  font-size: 1.5em;
+  font-weight: 400;
 }
