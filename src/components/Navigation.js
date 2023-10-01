@@ -1,7 +1,15 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import Signin from "./Signin";
 import { useAuth } from "../AuthProvider";
+
+/*
+
+import Products from "./components/Products";
+import Customers from "./components/Customers";
+import Shipments from "./components/Shipments";
+import Warehouses from "./components/Warehouses";
+
+*/
 
 const Navigation = () => {
   const { token, setToken } = useAuth();
@@ -11,8 +19,12 @@ const Navigation = () => {
         <h3>OrderPost</h3>
       </div>
       <div className="nav-right">
-        <Link to="/">Signin</Link>
+        {!token.length ? <Link to="/">Signin</Link> : null}
         {token.length ? <Link to="/orders">Orders</Link> : null}
+        {token.length ? <Link to="/products">Products</Link> : null}
+        {token.length ? <Link to="/customers">Customers</Link> : null}
+        {token.length ? <Link to="/shipments">Shipments</Link> : null}
+        {token.length ? <Link to="/warehouses">Warehouses</Link> : null}
         {token.length ? (
           <Link
             to="/"
