@@ -104,6 +104,7 @@ function Orders() {
         <Table>
           <TableHead>
             <TableRow>
+              <TableCell>Order Number</TableCell>
               <TableCell>Name</TableCell>
               <TableCell>Order Date</TableCell>
               <TableCell>Ship-By Date</TableCell>
@@ -119,6 +120,7 @@ function Orders() {
             {orders.map((order, index) => {
               return (
                 <TableRow key={order.order_id}>
+                  <TableCell>{order.order_number}</TableCell>
                   <TableCell>{`${order.first_name} ${order.last_name}`}</TableCell>
                   <TableCell>{dateConverter(order.order_date)}</TableCell>
                   <TableCell>{dateConverter(order.ship_by_date)}</TableCell>
