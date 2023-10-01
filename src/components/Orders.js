@@ -47,19 +47,28 @@ const dateConverter = (iso) => {
   }
 
   return `${month} ${day}${daySuffix}, ${year}`;
+};
 
-  // let year = date.getFullYear();
-  // let month = date.getMonth() + 1;
-  // let day = date.getDate();
-  // let hours = date.getUTCHours();
-  // let minutes = date.getUTCMinutes();
-  // let seconds = date.getUTCSeconds();
-
-  // return `${year}-${month.toString().padStart(2, "0")}-${day
-  //   .toString()
-  //   .padStart(2, "0")} ${hours.toString().padStart(2, "0")}:${minutes
-  //   .toString()
-  //   .padStart(2, "0")}:${seconds.toString().padStart(2, "0")} UTC`;
+const unitConverter = (value, unit) => {
+  // weight units: "pound" "ounce" "gram" or "kilogram"
+  // dim units "inch" or "centimeter"
+  if (value <= 1 && unit === "pound") {
+    return `${value} lb`;
+  } else if (unit === "pound") {
+    return `${value} lbs`;
+  } else if (unit === "ounce") {
+    return `${value} oz`;
+  } else if (unit === "gram") {
+    return `${value} g`;
+  } else if (unit === "kilogram") {
+    return `${value} g`;
+  } else if (unit === "inch") {
+    return `${value} in`;
+  } else if (unit === "centimeter") {
+    return `${value} cm`;
+  } else {
+    return `${value} ${unit}`;
+  }
 };
 
 function Orders() {
@@ -102,6 +111,7 @@ function Orders() {
               <TableCell>City</TableCell>
               <TableCell>State</TableCell>
               <TableCell>Postal Code</TableCell>
+              <TableCell>Weight</TableCell>
               {/* <TableCell>Delete</TableCell> */}
             </TableRow>
           </TableHead>
@@ -116,6 +126,9 @@ function Orders() {
                   <TableCell>{order.city_locality}</TableCell>
                   <TableCell>{order.state_province}</TableCell>
                   <TableCell>{order.postal_code}</TableCell>
+                  <TableCell>
+                    {unitConverter(order.order_weight, order.weight_units)}
+                  </TableCell>
                 </TableRow>
               );
             })}
