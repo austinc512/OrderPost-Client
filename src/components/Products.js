@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
 import { useAuth } from "../AuthProvider";
-// import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import {
   Table,
@@ -13,11 +13,10 @@ import {
 import DeleteIcon from "@mui/icons-material/Delete";
 import Modal from "@mui/material/Modal";
 
-// import * as React from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
-// import Modal from "@mui/material/Modal";
+import TextField from "@mui/material/TextField";
 
 const host = process.env.REACT_APP_URL;
 
@@ -33,7 +32,24 @@ const style = {
   p: 4,
 };
 
-function Products() {
+const style2 = {
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: "50vw",
+  minWidth: 700,
+  height: "50vh",
+  minHeight: 400,
+  bgcolor: "background.paper",
+  // border: "1px solid #000",
+  borderRadius: 1.5,
+  boxShadow: 24,
+  p: 4,
+  "& .MuiTextField-root": { m: 1, width: "50ch" },
+};
+
+export default function Products() {
   const { token } = useAuth();
   const [products, setProducts] = useState([]);
 
@@ -65,9 +81,8 @@ function Products() {
       });
   };
 
-  useEffect(() => {
+  const fetchProducts = () => {
     if (token.length) {
-      console.log(`in Orders useEffect hook if(props.length), ${token}`);
       axios
         .get(`${host}/products`, {
           headers: {
@@ -77,14 +92,125 @@ function Products() {
         .then((res) => {
           setProducts(res.data.data);
           console.log(res.data.data);
-          // ^^ this is super fucking annoying
-          // I don't have time to change my API design for this right now
         });
     }
+  };
+
+  useEffect(() => {
+    fetchProducts();
   }, [token]);
+
+  const ProductCreator = () => {
+    const [open2, setOpen2] = useState(false);
+    const handleOpen2 = () => setOpen2(true);
+    const handleClose2 = () => {
+      setOpen2(false);
+    };
+
+    const [product_name, set_product_name] = useState(null);
+    const [price, setPrice] = useState(null);
+    const [description, setDescription] = useState(null);
+
+    const navigate = useNavigate();
+
+    return (
+      <div>
+        <Button
+          style={{ margin: 10 }}
+          variant="contained"
+          onClick={handleOpen2}
+        >
+          Create Product
+        </Button>
+
+        <Modal
+          open={open2}
+          onClose={handleClose2}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+        >
+          <Box sx={style2}>
+            <h2
+              style={{
+                marginTop: 0,
+                fontWeight: 625,
+              }}
+            >
+              Create Product
+            </h2>
+            <form
+              className="form"
+              onSubmit={(e) => {
+                e.preventDefault();
+                axios
+                  .post(
+                    `${host}/products/`,
+                    {
+                      product_name,
+                      price,
+                      description,
+                    },
+                    {
+                      headers: {
+                        Authorization: `Bearer ${token}`,
+                      },
+                    }
+                  )
+                  .then((res) => {
+                    // ^^ this .then be turned off for production
+                    console.log(res.data);
+                    // return res;
+                    if (res.status === 200) {
+                      handleClose2();
+                      navigate("/products");
+                      fetchProducts();
+                    }
+                  });
+              }}
+            >
+              <TextField
+                label="Product Name (must be unique)"
+                variant="outlined"
+                required
+                type="text"
+                value={product_name}
+                onChange={(e) => {
+                  set_product_name(e.target.value);
+                }}
+              />
+
+              <TextField
+                label="Price (in USD)"
+                required
+                type="number"
+                value={price}
+                onChange={(e) => {
+                  setPrice(e.target.value);
+                }}
+              />
+              <TextField
+                label="Description (max 150 chars)"
+                required
+                multiline
+                type="text"
+                value={description}
+                onChange={(e) => {
+                  setDescription(e.target.value);
+                }}
+              />
+
+              <br />
+              <input type="submit" className="submit" value="Create Product!" />
+            </form>
+          </Box>
+        </Modal>
+      </div>
+    );
+  };
 
   return (
     <>
+      <ProductCreator />
       {!products.length ? (
         <p>Loading...</p>
       ) : (
@@ -102,14 +228,10 @@ function Products() {
               <Typography id="modal-modal-description" sx={{ mt: 2 }}>
                 {selectedProduct?.description}
               </Typography>
+              <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+                {`$${selectedProduct?.price}`}
+              </Typography>
             </Box>
-            {/* <div>
-              <h2 id="product-modal-title">{selectedProduct?.product_name}</h2>
-              <p id="product-modal-description">
-                {selectedProduct?.description}
-              </p>
-              
-            </div> */}
           </Modal>
           <Table>
             <TableHead>
@@ -123,18 +245,26 @@ function Products() {
             <TableBody>
               {products.map((product, index) => {
                 return (
-                  <TableRow
-                    key={product.product_id}
-                    onClick={async () => {
-                      handleProductClick(product.product_id);
-                      handleOpen();
-                      // console.log(product.product_id);
-                    }}
-                  >
-                    <TableCell>{product.product_id}</TableCell>
-                    <TableCell>{product.product_name}</TableCell>
-                    <TableCell>{product.price}</TableCell>
-                    <TableCell>{product.description}</TableCell>
+                  <TableRow className="table-row" key={product.product_id}>
+                    {[
+                      product.product_id,
+                      product.product_name,
+                      product.price,
+                      product.description,
+                    ].map((property) => {
+                      return (
+                        <TableCell key={property}>
+                          <span
+                            onClick={() => {
+                              handleProductClick(product.product_id);
+                              handleOpen();
+                            }}
+                          >
+                            {property}
+                          </span>
+                        </TableCell>
+                      );
+                    })}
                   </TableRow>
                 );
               })}
@@ -146,4 +276,4 @@ function Products() {
   );
 }
 
-export default Products;
+// export default Products;

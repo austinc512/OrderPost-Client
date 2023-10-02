@@ -3,7 +3,9 @@
 }
 
 body {
-  background-color: #f2f2f2;
+  /* background-color: rgb(255, 255, 255); */
+  background-color: rgb(253, 253, 253);
+  /* background-color: rgb(245, 245, 245); */
 }
 
 .nav {
@@ -62,4 +64,16 @@ body {
 .modal {
   width: 500px !important;
   height: 500px !important;
+}
+
+.table-row:hover td {
+  background-color: #e6f7ff;
+  color: #3399ff;
+  font-weight: 3rem;
+  /* translate: 10px 10px; */
+  text-decoration: underline;
+}
+
+.table-row:hover td span {
+  cursor: pointer;
 }
