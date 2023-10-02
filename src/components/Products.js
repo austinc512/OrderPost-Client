@@ -39,7 +39,10 @@ function Products() {
 
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const handleClose = () => {
+    setOpen(false);
+    setSelectedProduct(null);
+  };
 
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [openModal, setOpenModal] = useState(false);
@@ -54,8 +57,10 @@ function Products() {
         },
       })
       .then((res) => {
-        console.log(res.data);
         setSelectedProduct(res.data);
+        return res;
+      })
+      .then((res) => {
         setOpenModal(true);
       });
   };
