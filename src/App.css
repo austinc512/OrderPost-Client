@@ -58,3 +58,8 @@ body {
   font-size: 1.5em;
   font-weight: 400;
 }
+
+.modal {
+  width: 500px !important;
+  height: 500px !important;
+}
