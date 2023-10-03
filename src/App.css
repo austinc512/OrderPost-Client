@@ -80,6 +80,8 @@ body {
 
 .scrollable-content {
   overflow-y: auto !important;
+  margin-top: 3rem;
+  /* margin: auto; */
 }
 
 .scrollable-content > * {

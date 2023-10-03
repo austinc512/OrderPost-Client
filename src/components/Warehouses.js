@@ -10,7 +10,7 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
+// import DeleteIcon from "@mui/icons-material/Delete";
 
 import Modal from "@mui/material/Modal";
 
@@ -19,11 +19,13 @@ import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import TextField from "@mui/material/TextField";
 
-import Radio from "@mui/material/Radio";
-import RadioGroup from "@mui/material/RadioGroup";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import FormControl from "@mui/material/FormControl";
-import FormLabel from "@mui/material/FormLabel";
+// Radio stuff was for address_residential_indicator
+// which I can't implement right now
+// import Radio from "@mui/material/Radio";
+// import RadioGroup from "@mui/material/RadioGroup";
+// import FormControlLabel from "@mui/material/FormControlLabel";
+// import FormControl from "@mui/material/FormControl";
+// import FormLabel from "@mui/material/FormLabel";
 
 const host = process.env.REACT_APP_URL;
 
@@ -103,9 +105,7 @@ function Warehouses() {
   };
 
   useEffect(() => {
-    if (token.length) {
-      fetchWarehouses();
-    }
+    fetchWarehouses();
   }, [token]);
 
   const WarehouseCreator = () => {
@@ -492,7 +492,7 @@ function Warehouses() {
                       warehouse.postal_code,
                     ].map((property) => {
                       return (
-                        <TableCell key={property}>
+                        <TableCell key={Math.random()}>
                           <span
                             onClick={() => {
                               handleWarehouseClick(warehouse.warehouse_id);
