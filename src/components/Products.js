@@ -246,8 +246,17 @@ export default function Products() {
               {products.map((product, index) => {
                 return (
                   <TableRow className="table-row" key={product.product_id}>
+                    <TableCell>
+                      <span
+                        onClick={() => {
+                          handleProductClick(product.product_id);
+                          handleOpen();
+                        }}
+                      >
+                        {product.product_id}
+                      </span>
+                    </TableCell>
                     {[
-                      product.product_id,
                       product.product_name,
                       product.price,
                       product.description,
@@ -260,7 +269,14 @@ export default function Products() {
                               handleOpen();
                             }}
                           >
-                            {property}
+                            {((input) => {
+                              // oh look, an IIFE
+                              if (!isNaN(+input)) {
+                                return `$${input.toFixed(2)}`;
+                              } else {
+                                return input;
+                              }
+                            })(property)}
                           </span>
                         </TableCell>
                       );

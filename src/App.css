@@ -77,3 +77,12 @@ body {
 .table-row:hover td span {
   cursor: pointer;
 }
+
+.scrollable-content {
+  overflow-y: auto !important;
+}
+
+.scrollable-content > * {
+  margin: 0 auto;
+  text-align: center;
+}
