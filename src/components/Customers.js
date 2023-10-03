@@ -53,6 +53,9 @@ const style2 = {
   "& .MuiTextField-root": { m: 1, width: "50ch" },
 };
 
+// handleCustomerClick()
+// handleOpen();
+
 function Customers() {
   const { token } = useAuth();
   const [customers, setCustomers] = useState([]);
@@ -75,7 +78,13 @@ function Customers() {
         },
       })
       .then((res) => {
-        selectedCustomer(res.data);
+        // getCustomerAddresses
+        // this is returning an array
+        // another place where wanting to support multiple customer addresses
+        // is rearing its ugly head.
+        setSelectedCustomer(res.data.data[0]);
+        console.log(res.data.data[0]);
+        // and this other BS about the .data.data that crops up in a couple spots
         return res;
       })
       .then((res) => {
@@ -228,8 +237,8 @@ function Customers() {
                   console.log(err);
                 }
                 if (responseData.status !== "verified") {
-                  alert(
-                    "Address validation failed, check your address information. It is required that you input a valid address"
+                  return alert(
+                    "Address validation failed, check your address information. It is required that you input a valid address. Use this website to cross-reference your address info: https://tools.usps.com/zip-code-lookup.htm?byaddress"
                   );
                 }
                 console.log(responseData);
@@ -454,7 +463,7 @@ function Customers() {
               <input
                 type="submit"
                 className="submit"
-                value="Create Warehouse!"
+                value="Create Customer!"
               />
             </form>
           </Box>
@@ -469,43 +478,77 @@ function Customers() {
       {!customers.length ? (
         <p>Loading...</p>
       ) : (
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>ID</TableCell>
-              <TableCell>Name</TableCell>
-              <TableCell>Phone</TableCell>
-              <TableCell>Email</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {customers.map((customer, index) => {
-              return (
-                <TableRow key={customer.customer_id} className="table-row">
-                  {[
-                    customer.customer_id,
-                    `${customer.first_name} ${customer.last_name}`,
-                    customer.phone,
-                    customer.email,
-                  ].map((property) => {
-                    return (
-                      <TableCell key={property}>
-                        <span
-                          onClick={() => {
-                            // handleCustomerClick()
-                            // handleOpen();
-                          }}
-                        >
-                          {property}
-                        </span>
-                      </TableCell>
-                    );
-                  })}
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
+        <>
+          <Modal
+            open={open}
+            onClose={handleClose}
+            aria-labelledby="modal-modal-title"
+            aria-describedby="modal-modal-description"
+          >
+            <Box sx={style}>
+              <h3>Address Info:</h3>
+              <Typography id="modal-modal-title" variant="h6" component="h2">
+                {`${selectedCustomer?.first_name} ${selectedCustomer?.last_name}`}
+              </Typography>
+              <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+                {selectedCustomer?.address_line1}
+              </Typography>
+              <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+                {selectedCustomer?.address_line2}
+              </Typography>
+              <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+                {selectedCustomer?.address_line3}
+              </Typography>
+              <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+                {`${selectedCustomer?.city_locality}, ${selectedCustomer?.state_province} ${selectedCustomer?.postal_code}`}
+              </Typography>
+              <h3>Contact Info:</h3>
+              <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+                Phone: {selectedCustomer?.phone}
+              </Typography>
+              <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+                Email: {selectedCustomer?.email}
+              </Typography>
+            </Box>
+          </Modal>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>ID</TableCell>
+                <TableCell>Name</TableCell>
+                <TableCell>Phone</TableCell>
+                <TableCell>Email</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {customers.map((customer, index) => {
+                return (
+                  <TableRow key={customer.customer_id} className="table-row">
+                    {[
+                      customer.customer_id,
+                      `${customer.first_name} ${customer.last_name}`,
+                      customer.phone,
+                      customer.email,
+                    ].map((property) => {
+                      return (
+                        <TableCell key={property}>
+                          <span
+                            onClick={() => {
+                              handleCustomerClick(customer.customer_id);
+                              handleOpen();
+                            }}
+                          >
+                            {property}
+                          </span>
+                        </TableCell>
+                      );
+                    })}
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </>
       )}
     </>
   );
