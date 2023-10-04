@@ -10,6 +10,9 @@ import {
   TableRow,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
+import Button from "@mui/material/Button";
+
+import CreateOrder from "./CreateOrder";
 
 const host = process.env.REACT_APP_URL;
 
@@ -95,9 +98,24 @@ function Orders() {
     }
   }, [token]);
 
-  // NEW RETURN STATEMENT
+  const [open, setOpen] = useState(false);
+  const [step, setStep] = useState(0);
+
   return (
     <>
+      {/* <Button
+        onClick={() => {
+          setStep(1);
+        }}
+      >
+        Create Order
+      </Button> */}
+      <CreateOrder
+        open={open}
+        setOpen={setOpen}
+        step={step}
+        setStep={setStep}
+      />
       {!orders.length ? (
         <p>Loading...</p>
       ) : (
@@ -142,23 +160,3 @@ function Orders() {
 }
 
 export default Orders;
-
-// WORKING COPY OF RETURN STATEMENT
-// return (
-//   <div>
-//     <ul className="list">
-//       {!orders.length ? (
-//         <p>Loading...</p>
-//       ) : (
-//         orders.map((item) => {
-//           console.log(item);
-//           return (
-//             <li className="item" key={item.order_id}>
-//               {item.order_number}: {item.order_status}
-//             </li>
-//           );
-//         })
-//       )}
-//     </ul>
-//   </div>
-// );

@@ -88,3 +88,26 @@ body {
   margin: 0 auto;
   text-align: center;
 }
+
+/* .scrollable-content::-webkit-scrollbar {
+  width: 10px;
+} */
+
+/* Nested targeting */
+.MuiBox-root div h1 {
+  padding: 0 !important;
+  margin: 5px !important;
+}
+
+.scrollable-content-2 {
+  overflow-y: auto !important;
+  margin-top: 3rem;
+  /* margin: auto; */
+}
+.top-paging-button {
+  float: right;
+}
+
+.selected-instance {
+  background-color: #e6ffe6;
+}
