@@ -29,7 +29,6 @@ const Signin = () => {
             .then((res) => {
               // ^^ this .then be turned off for production
               // console.log(res);
-              // console.log(res.data);
               if (res.status === 200) {
                 // console.log(`res == 200 is firing`);
               }
