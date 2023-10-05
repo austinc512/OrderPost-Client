@@ -98,7 +98,7 @@ function Shipments() {
   return (
     <>
       {!shipments.length ? (
-        <p>Loading...</p>
+        <p>(No shipments to show)</p>
       ) : (
         <Table>
           <TableHead>

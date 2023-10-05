@@ -5,6 +5,8 @@ import Box from "@mui/material/Box";
 import { useAuth } from "../AuthProvider";
 import axios from "axios";
 
+import { useNavigate } from "react-router-dom";
+
 const style2 = {
   margin: "0 auto",
   // position: "absolute",
@@ -30,6 +32,8 @@ const host = process.env.REACT_APP_URL;
 
 export default function MultiStepModal(props) {
   const { token } = useAuth();
+
+  const navigate = useNavigate();
 
   const handleOpen = () => {
     props.setStep(1);
@@ -134,6 +138,8 @@ useEffect(() => {
           alert(
             `Your label has been created! Please go to the Shipments tab in order to get your label.`
           );
+          handleClose();
+          navigate("/shipments");
         } else {
           alert(
             `We're sorry, something has failed. Please ensure you've filled out all information in the Order Creation screens in order to get a shipping label. If that still does not solve your issue, please contact the maintainer of this application.`

@@ -212,7 +212,7 @@ export default function Products() {
     <>
       <ProductCreator />
       {!products.length ? (
-        <p>Loading...</p>
+        <p>(No Products to show)</p>
       ) : (
         <>
           <Modal

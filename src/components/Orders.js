@@ -117,7 +117,7 @@ function Orders() {
         setStep={setStep}
       />
       {!orders.length ? (
-        <p>Loading...</p>
+        <p>(No Orders to show)</p>
       ) : (
         <Table>
           <TableHead>

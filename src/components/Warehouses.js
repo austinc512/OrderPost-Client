@@ -439,7 +439,7 @@ function Warehouses() {
     <>
       <WarehouseCreator />
       {!warehouses.length ? (
-        <p>(No warehouses to list)</p>
+        <p>(No warehouses to show)</p>
       ) : (
         <>
           <Modal

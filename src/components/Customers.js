@@ -476,7 +476,7 @@ function Customers() {
     <>
       <CustomerCreator />
       {!customers.length ? (
-        <p>Loading...</p>
+        <p>(No customers to show)</p>
       ) : (
         <>
           <Modal
