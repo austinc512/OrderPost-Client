@@ -64,8 +64,8 @@ export default function Products() {
   const [openModal, setOpenModal] = useState(false);
 
   const handleProductClick = (product_id) => {
-    console.log(`handleProductClick is firing`);
-    console.log(product_id);
+    // console.log(`handleProductClick is firing`);
+    // console.log(product_id);
     axios
       .get(`${host}/products/${product_id}`, {
         headers: {
@@ -91,7 +91,7 @@ export default function Products() {
         })
         .then((res) => {
           setProducts(res.data.data);
-          console.log(res.data.data);
+          // console.log(res.data.data);
         });
     }
   };
@@ -158,7 +158,7 @@ export default function Products() {
                   )
                   .then((res) => {
                     // ^^ this .then be turned off for production
-                    console.log(res.data);
+                    // console.log(res.data);
                     // return res;
                     if (res.status === 200) {
                       handleClose2();

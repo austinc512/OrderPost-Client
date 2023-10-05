@@ -83,7 +83,7 @@ function Customers() {
         // another place where wanting to support multiple customer addresses
         // is rearing its ugly head.
         setSelectedCustomer(res.data.data[0]);
-        console.log(res.data.data[0]);
+        // console.log(res.data.data[0]);
         // and this other BS about the .data.data that crops up in a couple spots
         return res;
       })
@@ -94,7 +94,7 @@ function Customers() {
 
   const fetchCustomers = () => {
     if (token.length) {
-      console.log(`in Orders useEffect hook if(props.length), ${token}`);
+      // console.log(`in Orders useEffect hook if(props.length), ${token}`);
       axios
         .get(`${host}/customers`, {
           headers: {
@@ -103,7 +103,7 @@ function Customers() {
         })
         .then((res) => {
           setCustomers(res.data.data);
-          console.log(res.data.data);
+          // console.log(res.data.data);
         });
     }
   };
@@ -230,19 +230,19 @@ function Customers() {
                     )
                     .then((res) => {
                       // ^^ this .then be turned off for production
-                      console.log(res.data);
+                      // console.log(res.data);
                       responseData = res.data;
                     });
                 } catch (err) {
-                  console.log(err);
+                  // console.log(err);
                 }
                 if (responseData.status !== "verified") {
                   return alert(
                     "Address validation failed, check your address information. It is required that you input a valid address. Use this website to cross-reference your address info: https://tools.usps.com/zip-code-lookup.htm?byaddress"
                   );
                 }
-                console.log(responseData);
-                console.log(`avoided callback hell`);
+                // console.log(responseData);
+                // console.log(`avoided callback hell`);
                 let customerRes;
                 let custApiReq;
                 try {
@@ -262,13 +262,13 @@ function Customers() {
                       }
                     )
                     .then((res) => {
-                      console.log(res.data);
+                      // console.log(res.data);
                       customerRes = res.data;
                     });
                 } catch (err) {
-                  console.log(err);
+                  // console.log(err);
                 }
-                console.log(customerRes);
+                // console.log(customerRes);
                 /*
                 data: 
                   customer_id: 8
@@ -307,14 +307,14 @@ function Customers() {
                       }
                     )
                     .then((res) => {
-                      console.log(res.data);
+                      // console.log(res.data);
                       AddressRes = res.data;
                     });
                   handleClose2();
                   navigate("/customers");
                   fetchCustomers();
                 } catch (err) {
-                  console.log(err);
+                  // console.log(err);
                 }
 
                 // end of onSubmit function

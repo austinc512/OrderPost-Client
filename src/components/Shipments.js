@@ -88,7 +88,7 @@ function Shipments() {
         })
         .then((res) => {
           setShipments(res.data.data);
-          console.log(res.data.data);
+          // console.log(res.data.data);
           // ^^ this is super fucking annoying
           // I don't have time to change my API design for this right now
         });

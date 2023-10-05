@@ -18,8 +18,8 @@ const Signup = () => {
 
   useEffect(() => {
     // console.log({ username, password });
-    console.log(username);
-    console.log(password);
+    // console.log(username);
+    // console.log(password);
   }, [username, password]);
 
   return (
@@ -28,7 +28,7 @@ const Signup = () => {
         <form
           className="form"
           onSubmit={(e) => {
-            console.log({ username, password, first_name, last_name, email });
+            // console.log({ username, password, first_name, last_name, email });
             e.preventDefault();
             axios
               .post(`${host}/auth/register`, {
@@ -40,7 +40,7 @@ const Signup = () => {
               })
               .then((res) => {
                 // ^^ this .then be turned off for production
-                console.log(res.data);
+                // console.log(res.data);
                 // return res;
                 if (res.status === 204) {
                   setGoHome(true);

@@ -132,8 +132,8 @@ useEffect(() => {
             shipmentReturn = res.data;
             statusCheck = res.status;
           });
-        console.log(shipmentReturn);
-        console.log(statusCheck);
+        // console.log(shipmentReturn);
+        // console.log(statusCheck);
         if (statusCheck === 200) {
           alert(
             `Your label has been created! Please go to the Shipments tab in order to get your label.`
@@ -160,7 +160,7 @@ useEffect(() => {
             // return id;
           });
         // order_id is accessible here
-        console.log(id);
+        // console.log(id);
         let shipmentReturn;
         // let shipmentApiRequest = await axios
         //   .post(`${host}/orders/${id}/create-shipment`, {
@@ -299,7 +299,7 @@ function Warehouses(props) {
         })
         .then((res) => {
           setWarehouses(res.data.data);
-          console.log(res.data.data);
+          // console.log(res.data.data);
         });
     }
   };
@@ -334,7 +334,7 @@ function Warehouses(props) {
                   <span>{element.address_line1}</span>
                   {(() => {
                     if (element.address_line2) {
-                      console.log(element.address_line2);
+                      // console.log(element.address_line2);
                       return (
                         <>
                           <br />
@@ -345,7 +345,7 @@ function Warehouses(props) {
                   })()}
                   {(() => {
                     if (element.address_line3) {
-                      console.log(element.address_line3);
+                      // console.log(element.address_line3);
                       return (
                         <>
                           <br />
@@ -415,7 +415,7 @@ function Customers(props) {
         })
         .then((res) => {
           setCustomers(res.data.data);
-          console.log(res.data.data);
+          // console.log(res.data.data);
         });
     }
   };
@@ -490,7 +490,7 @@ function Products(props) {
         })
         .then((res) => {
           setProducts(res.data.data);
-          console.log(res.data.data);
+          // console.log(res.data.data);
         });
     }
   };

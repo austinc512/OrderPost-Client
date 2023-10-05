@@ -99,7 +99,7 @@ function Warehouses() {
         })
         .then((res) => {
           setWarehouses(res.data.data);
-          console.log(res.data.data);
+          // console.log(res.data.data);
         });
     }
   };
@@ -235,7 +235,7 @@ function Warehouses() {
                   )
                   .then((res) => {
                     // ^^ this .then be turned off for production
-                    console.log(res.data);
+                    // console.log(res.data);
                     // return res;
                     if (res.data.status === "verified") {
                       axios.post(

@@ -13,8 +13,8 @@ const Signin = () => {
 
   useEffect(() => {
     // console.log({ username, password });
-    console.log(username);
-    console.log(password);
+    // console.log(username);
+    // console.log(password);
   }, [username, password]);
 
   return (
@@ -22,16 +22,16 @@ const Signin = () => {
       <form
         className="form"
         onSubmit={(e) => {
-          console.log({ username, password });
+          // console.log({ username, password });
           e.preventDefault();
           axios
             .post(`${host}/auth/login`, { username, password })
             .then((res) => {
               // ^^ this .then be turned off for production
-              console.log(res);
-              console.log(res.data);
+              // console.log(res);
+              // console.log(res.data);
               if (res.status === 200) {
-                console.log(`res == 200 is firing`);
+                // console.log(`res == 200 is firing`);
               }
               return res;
             })

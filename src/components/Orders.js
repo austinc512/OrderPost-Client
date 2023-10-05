@@ -76,13 +76,13 @@ const unitConverter = (value, unit) => {
 
 function Orders() {
   const { token } = useAuth();
-  console.log(`looking for token on orders page`);
-  console.log(token);
+  // console.log(`looking for token on orders page`);
+  // console.log(token);
   const [orders, setOrders] = useState([]);
   //   const navigate = useNavigate();
   useEffect(() => {
     if (token.length) {
-      console.log(`in Orders useEffect hook if(props.length), ${token}`);
+      // console.log(`in Orders useEffect hook if(props.length), ${token}`);
       axios
         .get(`${host}/orders`, {
           headers: {
@@ -91,7 +91,7 @@ function Orders() {
         })
         .then((res) => {
           setOrders(res.data.data);
-          console.log(res.data.data);
+          // console.log(res.data.data);
           // ^^ this is super fucking annoying
           // I don't have time to change my API design for this right now
         });
