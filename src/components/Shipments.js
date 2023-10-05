@@ -12,6 +12,8 @@ import {
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 
+import Button from "@mui/material/Button";
+
 const host = process.env.REACT_APP_URL;
 
 const dateConverter = (iso) => {
@@ -123,7 +125,18 @@ function Shipments() {
                       shipment.weight_units
                     )}
                   </TableCell>
-                  <TableCell>{shipment.label_reference}</TableCell>
+                  <TableCell>
+                    <a
+                      href={shipment.label_reference}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ textDecoration: "none" }}
+                    >
+                      <Button variant="contained" color="primary">
+                        Open Link
+                      </Button>
+                    </a>
+                  </TableCell>
                 </TableRow>
               );
             })}

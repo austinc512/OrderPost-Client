@@ -12,6 +12,7 @@ import Products from "./components/Products";
 import Customers from "./components/Customers";
 import Shipments from "./components/Shipments";
 import Warehouses from "./components/Warehouses";
+import HowTo from "./components/HowTo";
 
 // then define their routes
 
@@ -38,6 +39,7 @@ const Router = () => {
       <Navigation />
       <Routes>
         <Route path="/" element={<Signin />} />
+        <Route path="/tutorial" element={<HowTo />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/orders" element={<ProtectedRoute component={Orders} />} />
         <Route

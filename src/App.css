@@ -89,10 +89,6 @@ body {
   text-align: center;
 }
 
-/* .scrollable-content::-webkit-scrollbar {
-  width: 10px;
-} */
-
 /* Nested targeting */
 .MuiBox-root div h1 {
   padding: 0 !important;
@@ -104,10 +100,54 @@ body {
   margin-top: 3rem;
   /* margin: auto; */
 }
-.top-paging-button {
-  float: right;
-}
+/* .top-paging-button {
+  margin: 0 auto !important;
+} */
 
 .selected-instance {
   background-color: #e6ffe6;
+}
+
+/* #modal-group {
+  border-radius: 0.5em;
+  display: grid;
+  grid-template-columns: 0.4fr 0.6fr;
+  grid-template-rows: 1fr;
+} */
+
+.modal-listing-left {
+  /* margin: 0 auto; */
+}
+
+.modal-listing-left > h3 {
+  margin: 0.5em 0;
+}
+
+.modal-listing-left:hover * {
+  text-decoration: underline;
+  cursor: pointer;
+  color: #3399ff;
+}
+
+.modal-listing-right {
+  display: flex;
+}
+
+.modal-listing-right:hover * {
+  cursor: pointer;
+}
+
+.modal-warehouse-next {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.modal-full-navigation {
+  display: flex;
+  justify-content: space-between;
+}
+
+.tutorial {
+  width: 70vw;
+  margin: 0 auto;
 }
