@@ -28,7 +28,6 @@ const Signin = () => {
             .post(`${host}/auth/login`, { username, password })
             .then((res) => {
               // ^^ this .then be turned off for production
-              // console.log(res);
               if (res.status === 200) {
                 // console.log(`res == 200 is firing`);
               }
