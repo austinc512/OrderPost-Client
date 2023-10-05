@@ -27,13 +27,6 @@ const Signin = () => {
           axios
             .post(`${host}/auth/login`, { username, password })
             .then((res) => {
-              // ^^ this .then be turned off for production
-              if (res.status === 200) {
-                // console.log(`res == 200 is firing`);
-              }
-              return res;
-            })
-            .then((res) => {
               setToken(res.data);
               navigate("/orders");
             });
