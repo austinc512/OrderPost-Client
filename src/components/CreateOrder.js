@@ -386,7 +386,6 @@ function Warehouses(props) {
 }
 
 /*
-
 State management for these conditional components:
 
 I need to re-factor these into the useContext API later
@@ -398,7 +397,6 @@ Right now these will fail to fetch new resources after ANY resource already exis
 
 So if a user creates a new customer, warehouse, product, etc.
 then it will not be fetched IF this has already fetched customers, warehouses, etc.
-
 */
 
 function Customers(props) {
