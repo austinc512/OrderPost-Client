@@ -150,9 +150,43 @@ function Warehouses() {
     const [address_line2, setAddressLine2] = useState(null);
     const [address_line3, setAddressLine3] = useState(null);
     const [city_locality, setCity] = useState(null);
+
     const [state_province, setStateProvince] = useState(null);
+    const [stateError, setStateError] = useState(false);
+    const [stateHelper, setStateHelper] = useState("");
+    const handleStateInput = (e) => {
+      const value = e.target.value;
+      setStateProvince(value);
+
+      // Validate the input value using the pattern
+      if (value && !/^[A-Z]{2}$/.test(value)) {
+        setStateError(true);
+        setStateHelper("Please enter a valid 2-letter State code (e.g. TX)");
+      } else {
+        setStateError(false);
+        setStateHelper("");
+      }
+    };
+
     const [postal_code, setPostalCode] = useState(null);
     const [country_code, SetCountryCode] = useState(null);
+    const [countryError, setCountryError] = useState(false);
+    const [countryHelper, setCountryHelper] = useState("");
+    const handleCountryInput = (e) => {
+      const value = e.target.value;
+      SetCountryCode(value);
+
+      // Validate the input value using the pattern
+      if (value && !/^[A-Z]{2}$/.test(value)) {
+        setCountryError(true);
+        setCountryHelper(
+          "Please enter a valid 2-letter Country code (e.g. US)"
+        );
+      } else {
+        setCountryError(false);
+        setCountryHelper("");
+      }
+    };
     // const [address_residential_indicator, setResidential] = useState(null);
 
     // frontend is responsible for formatting request to ShipEngine
@@ -371,9 +405,9 @@ function Warehouses() {
                 required
                 type="text"
                 value={state_province}
-                onChange={(e) => {
-                  setStateProvince(e.target.value);
-                }}
+                onChange={handleStateInput}
+                error={stateError}
+                helperText={stateHelper}
               />
               <TextField
                 label="Postal Code"
@@ -387,11 +421,13 @@ function Warehouses() {
               <TextField
                 label="Country Code (US, not United States)"
                 required
+                // pattern="[A-Z]{2}"
+                // (doesn't work with MUI TextField)
                 type="text"
                 value={country_code}
-                onChange={(e) => {
-                  SetCountryCode(e.target.value);
-                }}
+                onChange={handleCountryInput}
+                error={countryError}
+                helperText={countryHelper}
               />
               {
                 // This doesn't work right now, and I don't have the bandwidth to fix it.

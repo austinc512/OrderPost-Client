@@ -28,6 +28,10 @@ const style2 = {
   //   "& .MuiTextField-root": { m: 1, width: "50ch" },
 };
 
+const numFormatter = (num) => {
+  return Number(num.toFixed(2));
+};
+
 const host = process.env.REACT_APP_URL;
 
 export default function MultiStepModal(props) {
@@ -66,7 +70,7 @@ export default function MultiStepModal(props) {
 
   // configurable state for order details
   const [order_number, setOrderNumber] = useState(
-    Math.trunc(Math.random() * 100)
+    Math.trunc(Math.random() * 100 + 1)
   );
   const [total_amount, setTotalAmount] = useState(0);
   const [order_weight, setOrderWeight] = useState(1);
@@ -560,7 +564,7 @@ function SubmitOrder(props) {
       {/* Your submit content */}
       <h2>Configure shipment details</h2>
       <label>
-        Order Number (optional)
+        Order Number
         <input
           type="number"
           value={props.order_number}
