@@ -108,7 +108,7 @@ function Warehouses() {
     fetchWarehouses();
   }, [token]);
 
-  const WarehouseCreator = () => {
+  const WarehouseCreator = (props) => {
     /*
     required props:
      !first_name ||
@@ -244,67 +244,71 @@ function Warehouses() {
               className="form"
               onSubmit={(e) => {
                 e.preventDefault();
-                axios
-                  .post(
-                    `${host}/warehouses/verify`,
-                    {
-                      name: `${first_name} ${last_name}`,
-                      phone,
-                      email,
-                      company_name,
-                      address_line1,
-                      address_line2,
-                      address_line3,
-                      city_locality,
-                      state_province,
-                      postal_code,
-                      country_code,
-                      // address_residential_indicator,
-                    },
-                    {
-                      headers: {
-                        Authorization: `Bearer ${token}`,
+                console.log(props.action);
+                if (props.action === "CREATE") {
+                  console.log(`SUCCESS`);
+                  axios
+                    .post(
+                      `${host}/warehouses/verify`,
+                      {
+                        name: `${first_name} ${last_name}`,
+                        phone,
+                        email,
+                        company_name,
+                        address_line1,
+                        address_line2,
+                        address_line3,
+                        city_locality,
+                        state_province,
+                        postal_code,
+                        country_code,
+                        // address_residential_indicator,
                       },
-                    }
-                  )
-                  .then((res) => {
-                    // ^^ this .then be turned off for production
-                    // console.log(res.data);
-                    // return res;
-                    if (res.data.status === "verified") {
-                      axios.post(
-                        `${host}/warehouses/`,
-                        {
-                          first_name,
-                          last_name,
-                          nick_name,
-                          phone,
-                          email,
-                          company_name,
-                          address_line1,
-                          address_line2,
-                          address_line3,
-                          city_locality,
-                          state_province,
-                          postal_code,
-                          country_code,
-                          // address_residential_indicator,
+                      {
+                        headers: {
+                          Authorization: `Bearer ${token}`,
                         },
-                        {
-                          headers: {
-                            Authorization: `Bearer ${token}`,
+                      }
+                    )
+                    .then((res) => {
+                      // ^^ this .then be turned off for production
+                      // console.log(res.data);
+                      // return res;
+                      if (res.data.status === "verified") {
+                        axios.post(
+                          `${host}/warehouses/`,
+                          {
+                            first_name,
+                            last_name,
+                            nick_name,
+                            phone,
+                            email,
+                            company_name,
+                            address_line1,
+                            address_line2,
+                            address_line3,
+                            city_locality,
+                            state_province,
+                            postal_code,
+                            country_code,
+                            // address_residential_indicator,
                           },
-                        }
-                      );
-                      handleClose2();
-                      navigate("/warehouses");
-                      fetchWarehouses();
-                    } else {
-                      alert(
-                        "Address validation failed, check your address information. It is required that you input a valid address"
-                      );
-                    }
-                  });
+                          {
+                            headers: {
+                              Authorization: `Bearer ${token}`,
+                            },
+                          }
+                        );
+                        handleClose2();
+                        navigate("/warehouses");
+                        fetchWarehouses();
+                      } else {
+                        alert(
+                          "Address validation failed, check your address information. It is required that you input a valid address"
+                        );
+                      }
+                    });
+                }
               }}
             >
               <TextField
@@ -473,7 +477,7 @@ function Warehouses() {
 
   return (
     <>
-      <WarehouseCreator />
+      <WarehouseCreator action="CREATE" />
       {!warehouses.length ? (
         <p>(No warehouses to show)</p>
       ) : (

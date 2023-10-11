@@ -107,7 +107,7 @@ export default function Products() {
       setOpen2(false);
     };
 
-    const [product_name, set_product_name] = useState(null);
+    const [product_name, setProductName] = useState(null);
     const [price, setPrice] = useState(null);
     const [description, setDescription] = useState(null);
 
@@ -175,7 +175,7 @@ export default function Products() {
                 type="text"
                 value={product_name}
                 onChange={(e) => {
-                  set_product_name(e.target.value);
+                  setProductName(e.target.value);
                 }}
               />
 
@@ -245,7 +245,7 @@ export default function Products() {
             <TableBody>
               {products.map((product, index) => {
                 return (
-                  <TableRow className="table-row" key={product.product_id}>
+                  <TableRow className="table-row" key={index}>
                     <TableCell>
                       <span
                         onClick={() => {
@@ -260,9 +260,9 @@ export default function Products() {
                       product.product_name,
                       product.price,
                       product.description,
-                    ].map((property) => {
+                    ].map((property, index) => {
                       return (
-                        <TableCell key={property}>
+                        <TableCell key={index}>
                           <span
                             onClick={() => {
                               handleProductClick(product.product_id);
