@@ -44,7 +44,10 @@ const style2 = {
 const ProductEditor = () => {
   // auth
   const { token } = useAuth();
-  // global state
+  // chonky global state
+  /*
+  Shared State: If product_name is a shared state between multiple components, and it is being modified inside the modal, any change to it will trigger a re-render in any component that uses it, including the Products component. React re-renders a component whenever its state or props change.
+  */
   const {
     openModal,
     modalType,
@@ -263,7 +266,6 @@ export default function Products() {
     handleOpen();
   };
 
-  // I have done as much as I can here...
   console.log(`Products re-render is occurring`);
 
   const fetchProducts = () => {
@@ -338,9 +340,22 @@ export default function Products() {
                             handleProductClick(product.product_id);
                           }}
                         >
-                          {typeof property === "number" && !isNaN(+property)
-                            ? `$${property.toFixed(2)}`
-                            : property}
+                          {
+                            // ((input) => {
+                            //   // oh look, an IIFE
+                            //   if (typeof input === "number" && !isNaN(+input)) {
+                            //     console.log(`WHERE IS THIS FUCKING UP?`);
+                            //     console.log(input);
+                            //     return `$${input.toFixed(2)}`;
+                            //   } else {
+                            //     return input;
+                            //   }
+                            // })(property)
+
+                            typeof property === "number" && !isNaN(+property)
+                              ? `$${property.toFixed(2)}`
+                              : property
+                          }
                         </span>
                       </TableCell>
                     );
