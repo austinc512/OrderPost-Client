@@ -1,7 +1,8 @@
 import React from "react";
 import { Routes, Route } from "react-router";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "./AuthProvider";
+// add useContext here
+import { useAuth, ProductEditorProvider } from "./AuthProvider";
 
 // import components
 import Navigation from "./components/Navigation";
@@ -13,6 +14,9 @@ import Customers from "./components/Customers";
 import Shipments from "./components/Shipments";
 import Warehouses from "./components/Warehouses";
 import HowTo from "./components/HowTo";
+
+// I need a space to test components
+import Testing from "./components/Testing";
 
 // then define their routes
 
@@ -41,10 +45,25 @@ const Router = () => {
         <Route path="/" element={<Signin />} />
         <Route path="/tutorial" element={<HowTo />} />
         <Route path="/signup" element={<Signup />} />
+
+        <Route
+          path="/testing"
+          // instantiate context as a wrapper like this:
+          element={
+            <ProductEditorProvider>
+              <ProtectedRoute component={Testing} />
+            </ProductEditorProvider>
+          }
+        />
+
         <Route path="/orders" element={<ProtectedRoute component={Orders} />} />
         <Route
           path="/products"
-          element={<ProtectedRoute component={Products} />}
+          element={
+            <ProductEditorProvider>
+              <ProtectedRoute component={Products} />
+            </ProductEditorProvider>
+          }
         />
         <Route
           path="/customers"

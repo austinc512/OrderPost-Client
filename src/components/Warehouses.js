@@ -108,7 +108,7 @@ function Warehouses() {
     fetchWarehouses();
   }, [token]);
 
-  const WarehouseCreator = (props) => {
+  const WarehouseEditor = (props) => {
     /*
     required props:
      !first_name ||
@@ -477,11 +477,12 @@ function Warehouses() {
 
   return (
     <>
-      <WarehouseCreator action="CREATE" />
+      <WarehouseEditor action="CREATE" />
       {!warehouses.length ? (
         <p>(No warehouses to show)</p>
       ) : (
         <>
+          {/* This Modal is the one that's mapped over */}
           <Modal
             open={open}
             onClose={handleClose}
@@ -506,6 +507,7 @@ function Warehouses() {
               </Typography>
             </Box>
           </Modal>
+          {/* END Modal that's mapped over */}
           <Table>
             <TableHead>
               <TableRow>
