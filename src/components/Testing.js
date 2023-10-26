@@ -246,7 +246,7 @@ const CustomerEditor = () => {
       }
 
       customer_id = customerRes.data.customer_id;
-      // create new customer address
+      // create a new customer address
       try {
         AddressApiReq = await axios
           .post(
