@@ -2,7 +2,11 @@ import React from "react";
 import { Routes, Route } from "react-router";
 import { Link, useNavigate } from "react-router-dom";
 // add useContext here
-import { useAuth, ProductEditorProvider } from "./AuthProvider";
+import {
+  useAuth,
+  ProductEditorProvider,
+  CustomerEditorProvider,
+} from "./AuthProvider";
 
 // import components
 import Navigation from "./components/Navigation";
@@ -50,9 +54,9 @@ const Router = () => {
           path="/testing"
           // instantiate context as a wrapper like this:
           element={
-            <ProductEditorProvider>
+            <CustomerEditorProvider>
               <ProtectedRoute component={Testing} />
-            </ProductEditorProvider>
+            </CustomerEditorProvider>
           }
         />
 
@@ -67,7 +71,11 @@ const Router = () => {
         />
         <Route
           path="/customers"
-          element={<ProtectedRoute component={Customers} />}
+          element={
+            <CustomerEditorProvider>
+              <ProtectedRoute component={Customers} />
+            </CustomerEditorProvider>
+          }
         />
         <Route
           path="/shipments"

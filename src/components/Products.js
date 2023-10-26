@@ -1,10 +1,6 @@
 import axios from "axios";
 import React, { useState, useEffect } from "react";
-import {
-  useAuth,
-  ProductEditorProvider,
-  useProductEditor,
-} from "../AuthProvider";
+import { useAuth, useProductEditor } from "../AuthProvider";
 import { useNavigate } from "react-router-dom";
 
 import {
@@ -46,8 +42,10 @@ const ProductEditor = () => {
   const { token } = useAuth();
   // global state
   const {
+    // modal stuff
     openModal,
     modalType,
+    // active resource
     selectedProduct,
     product_name,
     setProductName,
@@ -55,10 +53,13 @@ const ProductEditor = () => {
     setPrice,
     description,
     setDescription,
+    // more modal stuff
     handleClose,
+    // resource list
     setProducts,
   } = useProductEditor();
-  const navigate = useNavigate();
+
+  // const navigate = useNavigate();
 
   // useEffect(() => {
   //   console.log(product_name);
@@ -232,18 +233,16 @@ export default function Products() {
   const { token } = useAuth();
   // global state
   const {
+    // modal stuff
     setModalType,
     setSelectedProduct,
-    // (these are now aliased)
-    // setProductName,
-    // setPrice,
-    // setDescription,
     handleOpen,
-    products,
-    // setProducts,
+    // setter functions
     aliasProductName,
     aliasPrice,
     aliasDescription,
+    // resource list
+    products,
     aliasSetProducts,
   } = useProductEditor();
 
