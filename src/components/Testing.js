@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, { useState, useEffect } from "react";
-import { useAuth, useCustomerEditor } from "../AuthProvider";
+import { useAuth, useWarehouseEditor } from "../AuthProvider";
 import { useNavigate } from "react-router-dom";
 
 import {
@@ -38,7 +38,7 @@ const style2 = {
   "& .MuiTextField-root": { m: 1, width: "50ch" },
 };
 
-const CustomerEditor = () => {
+const WarehouseEditor = () => {
   // auth
   const { token } = useAuth();
   const {
@@ -46,11 +46,13 @@ const CustomerEditor = () => {
     openModal,
     modalType,
     // active resource
-    selectedCustomer,
+    selectedWarehouse,
     first_name,
     setFirstName,
     last_name,
     setLastName,
+    nick_name,
+    setNickName,
     phone,
     setPhone,
     email,
@@ -74,14 +76,10 @@ const CustomerEditor = () => {
     // more modal stuff
     handleClose,
     // resource list
-    // don't think this exists in global storage yet.
-    setCustomers,
-    // need to set ship_to_id on customer click.
-    ship_to_id,
-  } = useCustomerEditor();
+    setWarehouses,
+  } = useWarehouseEditor();
 
   // Validate state input (ex: TX)
-
   const [stateError, setStateError] = useState(false);
   const [stateHelper, setStateHelper] = useState("");
 
@@ -89,7 +87,6 @@ const CustomerEditor = () => {
     const value = e.target.value;
     setStateProvince(value);
 
-    // Validate the input value using the pattern
     if (value && !/^[A-Z]{2}$/.test(value)) {
       setStateError(true);
       setStateHelper("Please enter a valid 2-letter State code (e.g. TX)");
@@ -116,34 +113,24 @@ const CustomerEditor = () => {
     }
   };
 
-  const fetchCustomers = () => {
+  const fetchWarehouses = async () => {
     if (token.length) {
       axios
-        .get(`${host}/customers`, {
+        .get(`${host}/warehouses`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         })
         .then((res) => {
-          setCustomers(res.data.data);
+          setWarehouses(res.data.data);
           console.log(res.data.data);
         });
     }
   };
 
-  // modalType and ship_to_id are getting passed properly
-  // useEffect(() => {
-  //   console.log(modalType);
-  // }, [modalType]);
-
-  // useEffect(() => {
-  //   console.log({ ship_to_id });
-  // }, [ship_to_id]);
-
-  // if updating a customer, this returns an object that contains customer_id
   useEffect(() => {
-    console.log(selectedCustomer);
-  }, [selectedCustomer]);
+    console.log(selectedWarehouse);
+  }, [selectedWarehouse]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -164,15 +151,14 @@ const CustomerEditor = () => {
       country_code,
     });
 
-    let responseData, verifyRes;
+    let responseData;
 
     // verify address: this will occur for both CREATE and UPDATE
     // later optimization: only validate if address info is updated
+
     try {
-      verifyRes = await axios
+      await axios
         .post(
-          // customerAddress endpoint requires a customerId
-          // using warehouses endpoint instead
           `${host}/warehouses/verify`,
           {
             name: `${first_name} ${last_name}`,
@@ -199,7 +185,6 @@ const CustomerEditor = () => {
           responseData = res.data;
         });
     } catch (err) {
-      //
       console.log(err);
       alert(`An error occurred during the address validation step.`);
     }
@@ -212,48 +197,16 @@ const CustomerEditor = () => {
     // if here, address info passes vaildation
     // Modal types: CREATE or UPDATE
 
-    let customerRes;
-    let custApiReq;
-    let customer_id;
-    let AddressRes;
-    let AddressApiReq;
-
     if (modalType === "CREATE") {
       // if CREATE, make a new customer
       try {
-        custApiReq = await axios
+        await axios
           .post(
-            `${host}/customers/`,
+            `${host}/warehouses/`,
             {
               first_name,
               last_name,
-              phone,
-              email,
-            },
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          )
-          .then((res) => {
-            // console.log(res.data);
-            customerRes = res.data;
-          });
-      } catch (err) {
-        console.log(err);
-        alert(`An error occurred during the customer creation step.`);
-      }
-
-      customer_id = customerRes.data.customer_id;
-      // create a new customer address
-      try {
-        AddressApiReq = await axios
-          .post(
-            `${host}/customers/${customer_id}/addresses`,
-            {
-              first_name,
-              last_name,
+              nick_name,
               phone,
               email,
               company_name,
@@ -272,81 +225,26 @@ const CustomerEditor = () => {
               },
             }
           )
-          .then((res) => {
+          .then(async (res) => {
             // console.log(res.data);
-            AddressRes = res.data;
+            // customerRes = res.data;
+            await fetchWarehouses();
+            handleClose();
           });
-        handleClose();
-        fetchCustomers();
       } catch (err) {
         console.log(err);
-        alert(`An error occurred during the customer address creation step.`);
+        alert(`An error occurred during the warehouse creation step.`);
       }
     } else if (modalType === "UPDATE") {
-      // what info is needed?
-      // path param: customer ID
-      // body: first_name, last_name, phone, email
-
-      customer_id = selectedCustomer.customer_id;
-      console.log({
-        first_name,
-        last_name,
-        phone,
-        email,
-        customer_id,
-        ship_to_id,
-      });
-      // update existing customer
+      const warehouse_id = selectedWarehouse.warehouse_id;
       try {
-        custApiReq = await axios
+        await axios
           .patch(
-            `${host}/customers/${customer_id}`,
+            `${host}/warehouses/${warehouse_id}`,
             {
               first_name,
               last_name,
-              phone,
-              email,
-            },
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          )
-          .then((res) => {
-            // console.log(res.data);
-            customerRes = res.data;
-          });
-      } catch (err) {
-        console.log(err);
-        alert(`An error occurred during the update customer step.`);
-      }
-      // update address
-      /*
-      {
-              first_name,
-              last_name,
-              phone,
-              email,
-              company_name,
-              address_line1,
-              address_line2,
-              address_line3,
-              city_locality,
-              state_province,
-              postal_code,
-              country_code,
-              // address_residential_indicator,
-            }
-            all of this is stil accessible
-      */
-      try {
-        AddressApiReq = await axios
-          .patch(
-            `${host}/customers/${customer_id}/addresses/${ship_to_id}`,
-            {
-              first_name,
-              last_name,
+              nick_name,
               phone,
               email,
               company_name,
@@ -365,24 +263,42 @@ const CustomerEditor = () => {
               },
             }
           )
-          .then((res) => {
-            AddressRes = res.data;
-            console.log(
-              `${host}/customers/${customer_id}/addresses/${ship_to_id}`
-            );
-            console.log(res);
+          .then(async (res) => {
+            await fetchWarehouses();
+            handleClose();
           });
-        handleClose();
-        fetchCustomers();
       } catch (err) {
         console.log(err);
-        alert(`An error occurred during the customer address update step.`);
+        alert(`An error occurred during the warehouse update step.`);
       }
     }
   };
 
-  const handleDelete = () => {
-    console.log(`need to delete customer`);
+  const handleDelete = async (e) => {
+    e.preventDefault();
+    console.log(`need to delete warehouse`);
+    const warehouse_id = selectedWarehouse?.warehouse_id;
+    if (!warehouse_id) {
+      alert(`no customer is selected`);
+      return;
+    }
+    //
+    try {
+      await axios.delete(
+        `${host}/warehouses/${warehouse_id}`,
+        // axios.delete doesn't need a req body
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      fetchWarehouses();
+      handleClose();
+    } catch (err) {
+      console.log(err);
+      alert(`an error occurred in the delete warehouse step`);
+    }
   };
 
   return (
@@ -400,7 +316,7 @@ const CustomerEditor = () => {
               fontWeight: 625,
             }}
           >
-            Customer Editor
+            Warehouse Editor
           </h2>
           <form className="form" onSubmit={handleSubmit}>
             <TextField
@@ -421,6 +337,15 @@ const CustomerEditor = () => {
               value={last_name}
               onChange={(e) => {
                 setLastName(e.target.value);
+              }}
+            />
+            <TextField
+              label="Nickname"
+              required
+              type="text"
+              value={nick_name}
+              onChange={(e) => {
+                setNickName(e.target.value);
               }}
             />
             <TextField
@@ -521,11 +446,13 @@ const CustomerEditor = () => {
               type="submit"
               className="submit"
               value={
-                modalType === "CREATE" ? "Create Product!" : "Update Product!"
+                modalType === "CREATE"
+                  ? "Create Warehouse!"
+                  : "Update Warehouse!"
               }
             />
             {modalType === "UPDATE" ? (
-              <button onClick={handleDelete}>Delete Customer</button>
+              <button onClick={handleDelete}>Delete Warehouse</button>
             ) : null}
           </form>
         </Box>
@@ -534,17 +461,18 @@ const CustomerEditor = () => {
   );
 };
 
-export default function Customers() {
+export default function Warehouses() {
   const { token } = useAuth();
 
   const {
     // modal stuff
     setModalType,
-    setSelectedCustomer,
+    setSelectedWarehouse,
     handleOpen,
     // setter functions
     setFirstName,
     setLastName,
+    setNickName,
     setPhone,
     setEmail,
     setCompanyName,
@@ -555,27 +483,25 @@ export default function Customers() {
     setStateProvince,
     setPostalCode,
     SetCountryCode,
-    setShipToId,
     // resource list
-    customers,
-    setCustomers,
-  } = useCustomerEditor();
+    warehouses,
+    setWarehouses,
+  } = useWarehouseEditor();
 
-  const handleCustomerClick = (customer_id) => {
-    console.log(customer_id);
+  const handleWarehouseClick = (warehouse_id) => {
+    console.log(warehouse_id);
     axios
-      .get(`${host}/customers/${customer_id}/addresses`, {
+      .get(`${host}/warehouses/${warehouse_id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
       .then((res) => {
-        // this is returning an array
-        // another place where wanting to support multiple customer addresses is rearing its ugly head.
-        const address = res.data?.data[0] ?? "";
-        setSelectedCustomer(address);
+        const address = res.data ?? "";
+        setSelectedWarehouse(res.data);
         setFirstName(address?.first_name ?? "");
         setLastName(address?.last_name ?? "");
+        setNickName(address?.nick_name ?? "");
         setPhone(address?.phone ?? "");
         setEmail(address?.email ?? "");
         setCompanyName(address?.company_name ?? "");
@@ -586,30 +512,29 @@ export default function Customers() {
         setStateProvince(address?.state_province ?? "");
         setPostalCode(address?.postal_code ?? "");
         SetCountryCode(address?.country_code ?? "");
-        setShipToId(address?.ship_to_id ?? "");
         handleOpen();
       });
   };
 
-  const fetchCustomers = () => {
+  const fetchWarehouses = () => {
     if (token.length) {
       // console.log(`in Orders useEffect hook if(props.length), ${token}`);
       axios
-        .get(`${host}/customers`, {
+        .get(`${host}/warehouses`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         })
         .then((res) => {
-          setCustomers(res.data.data);
+          setWarehouses(res.data.data);
           // console.log(res.data.data);
         });
     }
   };
 
   useEffect(() => {
-    console.log(`customer fetch is occurring`);
-    fetchCustomers();
+    console.log(`warehouse fetch is occurring`);
+    fetchWarehouses();
   }, [token]);
 
   return (
@@ -623,34 +548,40 @@ export default function Customers() {
           handleOpen();
         }}
       >
-        Create Customer
+        Create Warehouse
       </Button>
-      <CustomerEditor />
+      <WarehouseEditor />
       <Table>
         <TableHead>
           <TableRow>
-            <TableCell>ID</TableCell>
-            <TableCell>Name</TableCell>
-            <TableCell>Phone</TableCell>
-            <TableCell>Email</TableCell>
+            <TableCell>Warehouse ID</TableCell>
+            <TableCell>Nickname</TableCell>
+            <TableCell>Company Name</TableCell>
+            <TableCell>Address Line 1</TableCell>
+            <TableCell>City</TableCell>
+            <TableCell>State</TableCell>
+            <TableCell>Postal Code</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {customers.map((customer, index) => {
+          {warehouses.map((warehouse, index) => {
             return (
-              <TableRow key={customer.customer_id} className="table-row">
+              <TableRow key={warehouse.warehouse_id} className="table-row">
                 {[
-                  customer.customer_id,
-                  `${customer.first_name} ${customer.last_name}`,
-                  customer.phone,
-                  customer.email,
-                ].map((property) => {
+                  warehouse.warehouse_id,
+                  warehouse.nick_name,
+                  warehouse.company_name,
+                  warehouse.address_line1,
+                  warehouse.city_locality,
+                  warehouse.state_province,
+                  warehouse.postal_code,
+                ].map((property, idx) => {
                   return (
-                    <TableCell key={property}>
+                    <TableCell key={`${property}${idx}`}>
                       <span
                         onClick={() => {
                           setModalType("UPDATE");
-                          handleCustomerClick(customer.customer_id);
+                          handleWarehouseClick(warehouse.warehouse_id);
                         }}
                       >
                         {property}

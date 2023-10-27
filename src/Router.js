@@ -6,6 +6,7 @@ import {
   useAuth,
   ProductEditorProvider,
   CustomerEditorProvider,
+  WarehouseEditorProvider,
 } from "./AuthProvider";
 
 // import components
@@ -54,9 +55,9 @@ const Router = () => {
           path="/testing"
           // instantiate context as a wrapper like this:
           element={
-            <CustomerEditorProvider>
+            <WarehouseEditorProvider>
               <ProtectedRoute component={Testing} />
-            </CustomerEditorProvider>
+            </WarehouseEditorProvider>
           }
         />
 
@@ -83,7 +84,11 @@ const Router = () => {
         />
         <Route
           path="/warehouses"
-          element={<ProtectedRoute component={Warehouses} />}
+          element={
+            <WarehouseEditorProvider>
+              <ProtectedRoute component={Warehouses} />
+            </WarehouseEditorProvider>
+          }
         />
       </Routes>
     </>

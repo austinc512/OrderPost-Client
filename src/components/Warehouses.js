@@ -1,6 +1,6 @@
 import axios from "axios";
-import { useState, useEffect } from "react";
-import { useAuth } from "../AuthProvider";
+import React, { useState, useEffect } from "react";
+import { useAuth, useWarehouseEditor } from "../AuthProvider";
 import { useNavigate } from "react-router-dom";
 
 import {
@@ -11,7 +11,6 @@ import {
   TableRow,
 } from "@mui/material";
 // import DeleteIcon from "@mui/icons-material/Delete";
-
 import Modal from "@mui/material/Modal";
 
 import Box from "@mui/material/Box";
@@ -19,27 +18,7 @@ import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import TextField from "@mui/material/TextField";
 
-// Radio stuff was for address_residential_indicator
-// which I can't implement right now
-// import Radio from "@mui/material/Radio";
-// import RadioGroup from "@mui/material/RadioGroup";
-// import FormControlLabel from "@mui/material/FormControlLabel";
-// import FormControl from "@mui/material/FormControl";
-// import FormLabel from "@mui/material/FormLabel";
-
 const host = process.env.REACT_APP_URL;
-
-const style = {
-  position: "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  width: 400,
-  bgcolor: "background.paper",
-  border: "2px solid #000",
-  boxShadow: 24,
-  p: 4,
-};
 
 const style2 = {
   margin: "0 auto",
@@ -59,21 +38,458 @@ const style2 = {
   "& .MuiTextField-root": { m: 1, width: "50ch" },
 };
 
-function Warehouses() {
+const WarehouseEditor = () => {
+  // auth
   const { token } = useAuth();
-  const [warehouses, setWarehouses] = useState([]);
+  const {
+    // modal stuff
+    openModal,
+    modalType,
+    // active resource
+    selectedWarehouse,
+    first_name,
+    setFirstName,
+    last_name,
+    setLastName,
+    nick_name,
+    setNickName,
+    phone,
+    setPhone,
+    email,
+    setEmail,
+    company_name,
+    setCompanyName,
+    address_line1,
+    setAddressLine1,
+    address_line2,
+    setAddressLine2,
+    address_line3,
+    setAddressLine3,
+    city_locality,
+    setCity,
+    state_province,
+    setStateProvince,
+    postal_code,
+    setPostalCode,
+    country_code,
+    SetCountryCode,
+    // more modal stuff
+    handleClose,
+    // resource list
+    setWarehouses,
+  } = useWarehouseEditor();
 
-  const [open, setOpen] = useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => {
-    setOpen(false);
-    setSelectedWarehouse(null);
+  // Validate state input (ex: TX)
+  const [stateError, setStateError] = useState(false);
+  const [stateHelper, setStateHelper] = useState("");
+
+  const handleStateInput = (e) => {
+    const value = e.target.value;
+    setStateProvince(value);
+
+    if (value && !/^[A-Z]{2}$/.test(value)) {
+      setStateError(true);
+      setStateHelper("Please enter a valid 2-letter State code (e.g. TX)");
+    } else {
+      setStateError(false);
+      setStateHelper("");
+    }
   };
 
-  const [selectedWarehouse, setSelectedWarehouse] = useState(null);
-  const [openModal, setOpenModal] = useState(false);
+  // validate country input (ex: US)
+  const [countryError, setCountryError] = useState(false);
+  const [countryHelper, setCountryHelper] = useState("");
+
+  const handleCountryInput = (e) => {
+    const value = e.target.value;
+    SetCountryCode(value);
+
+    if (value && !/^[A-Z]{2}$/.test(value)) {
+      setCountryError(true);
+      setCountryHelper("Please enter a valid 2-letter Country code (e.g. US)");
+    } else {
+      setCountryError(false);
+      setCountryHelper("");
+    }
+  };
+
+  const fetchWarehouses = async () => {
+    if (token.length) {
+      axios
+        .get(`${host}/warehouses`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then((res) => {
+          setWarehouses(res.data.data);
+          console.log(res.data.data);
+        });
+    }
+  };
+
+  useEffect(() => {
+    console.log(selectedWarehouse);
+  }, [selectedWarehouse]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    // active resource stuff
+    console.log({
+      first_name,
+      last_name,
+      phone,
+      email,
+      company_name,
+      address_line1,
+      address_line2,
+      address_line3,
+      city_locality,
+      state_province,
+      modalType,
+      postal_code,
+      country_code,
+    });
+
+    let responseData;
+
+    // verify address: this will occur for both CREATE and UPDATE
+    // later optimization: only validate if address info is updated
+
+    try {
+      await axios
+        .post(
+          `${host}/warehouses/verify`,
+          {
+            name: `${first_name} ${last_name}`,
+            phone,
+            email,
+            company_name,
+            address_line1,
+            address_line2,
+            address_line3,
+            city_locality,
+            state_province: `${state_province.toUpperCase()}`,
+            postal_code,
+            country_code: `${country_code.toUpperCase()}`,
+            // address_residential_indicator,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        )
+        .then((res) => {
+          // console.log(res.data);
+          responseData = res.data;
+        });
+    } catch (err) {
+      console.log(err);
+      alert(`An error occurred during the address validation step.`);
+    }
+    if (responseData.status !== "verified") {
+      return alert(
+        "Address validation failed, check your address information. It is required that you input a valid address. Use this website to cross-reference your address info: https://tools.usps.com/zip-code-lookup.htm?byaddress"
+      );
+    }
+
+    // if here, address info passes vaildation
+    // Modal types: CREATE or UPDATE
+
+    if (modalType === "CREATE") {
+      // if CREATE, make a new customer
+      try {
+        await axios
+          .post(
+            `${host}/warehouses/`,
+            {
+              first_name,
+              last_name,
+              nick_name,
+              phone,
+              email,
+              company_name,
+              address_line1,
+              address_line2,
+              address_line3,
+              city_locality,
+              state_province,
+              postal_code,
+              country_code,
+              // address_residential_indicator,
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          )
+          .then(async (res) => {
+            // console.log(res.data);
+            // customerRes = res.data;
+            await fetchWarehouses();
+            handleClose();
+          });
+      } catch (err) {
+        console.log(err);
+        alert(`An error occurred during the warehouse creation step.`);
+      }
+    } else if (modalType === "UPDATE") {
+      const warehouse_id = selectedWarehouse.warehouse_id;
+      try {
+        await axios
+          .patch(
+            `${host}/warehouses/${warehouse_id}`,
+            {
+              first_name,
+              last_name,
+              nick_name,
+              phone,
+              email,
+              company_name,
+              address_line1,
+              address_line2,
+              address_line3,
+              city_locality,
+              state_province,
+              postal_code,
+              country_code,
+              // address_residential_indicator,
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          )
+          .then(async (res) => {
+            await fetchWarehouses();
+            handleClose();
+          });
+      } catch (err) {
+        console.log(err);
+        alert(`An error occurred during the warehouse update step.`);
+      }
+    }
+  };
+
+  const handleDelete = async (e) => {
+    e.preventDefault();
+    console.log(`need to delete warehouse`);
+    const warehouse_id = selectedWarehouse?.warehouse_id;
+    if (!warehouse_id) {
+      alert(`no customer is selected`);
+      return;
+    }
+    //
+    try {
+      await axios.delete(
+        `${host}/warehouses/${warehouse_id}`,
+        // axios.delete doesn't need a req body
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      fetchWarehouses();
+      handleClose();
+    } catch (err) {
+      console.log(err);
+      alert(`an error occurred in the delete warehouse step`);
+    }
+  };
+
+  return (
+    <div>
+      <Modal
+        open={openModal}
+        onClose={handleClose}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={style2}>
+          <h2
+            style={{
+              marginTop: 0,
+              fontWeight: 625,
+            }}
+          >
+            Warehouse Editor
+          </h2>
+          <form className="form" onSubmit={handleSubmit}>
+            <TextField
+              label="First Name"
+              variant="outlined"
+              required
+              type="text"
+              value={first_name}
+              onChange={(e) => {
+                setFirstName(e.target.value);
+              }}
+            />
+            <TextField
+              label="Last Name"
+              variant="outlined"
+              required
+              type="text"
+              value={last_name}
+              onChange={(e) => {
+                setLastName(e.target.value);
+              }}
+            />
+            <TextField
+              label="Nickname"
+              required
+              type="text"
+              value={nick_name}
+              onChange={(e) => {
+                setNickName(e.target.value);
+              }}
+            />
+            <TextField
+              label="Phone (555-444-4321)"
+              required
+              // multiline
+              type="text"
+              value={phone}
+              onChange={(e) => {
+                setPhone(e.target.value);
+              }}
+            />
+            <TextField
+              label="Email (example@example.com)"
+              required
+              // multiline
+              type="text"
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+              }}
+            />
+            <TextField
+              label="Company Name"
+              type="text"
+              value={company_name}
+              onChange={(e) => {
+                setCompanyName(e.target.value);
+              }}
+            />
+            <TextField
+              label="Address Line 1"
+              required
+              // multiline
+              type="text"
+              value={address_line1}
+              onChange={(e) => {
+                setAddressLine1(e.target.value);
+              }}
+            />
+            <TextField
+              label="Address Line 2"
+              type="text"
+              value={address_line2}
+              onChange={(e) => {
+                setAddressLine2(e.target.value);
+              }}
+            />
+            <TextField
+              label="Address Line 3"
+              type="text"
+              value={address_line3}
+              onChange={(e) => {
+                setAddressLine3(e.target.value);
+              }}
+            />
+            <TextField
+              label="City"
+              required
+              type="text"
+              value={city_locality}
+              onChange={(e) => {
+                setCity(e.target.value);
+              }}
+            />
+            <TextField
+              label="State (TX, not Texas)"
+              required
+              type="text"
+              value={state_province}
+              onChange={handleStateInput}
+              error={stateError}
+              helperText={stateHelper}
+            />
+            <TextField
+              label="Postal Code"
+              required
+              type="text"
+              value={postal_code}
+              onChange={(e) => {
+                setPostalCode(e.target.value);
+              }}
+            />
+            <TextField
+              label="Country Code (US, not United States)"
+              required
+              // pattern="[A-Z]{2}"
+              // (doesn't work with MUI TextField)
+              type="text"
+              value={country_code}
+              onChange={handleCountryInput}
+              error={countryError}
+              helperText={countryHelper}
+            />
+
+            <br />
+            <input
+              type="submit"
+              className="submit"
+              value={
+                modalType === "CREATE"
+                  ? "Create Warehouse!"
+                  : "Update Warehouse!"
+              }
+            />
+            {modalType === "UPDATE" ? (
+              <button onClick={handleDelete}>Delete Warehouse</button>
+            ) : null}
+          </form>
+        </Box>
+      </Modal>
+    </div>
+  );
+};
+
+export default function Warehouses() {
+  const { token } = useAuth();
+
+  const {
+    // modal stuff
+    setModalType,
+    setSelectedWarehouse,
+    handleOpen,
+    // setter functions
+    setFirstName,
+    setLastName,
+    setNickName,
+    setPhone,
+    setEmail,
+    setCompanyName,
+    setAddressLine1,
+    setAddressLine2,
+    setAddressLine3,
+    setCity,
+    setStateProvince,
+    setPostalCode,
+    SetCountryCode,
+    // resource list
+    warehouses,
+    setWarehouses,
+  } = useWarehouseEditor();
 
   const handleWarehouseClick = (warehouse_id) => {
+    console.log(warehouse_id);
     axios
       .get(`${host}/warehouses/${warehouse_id}`, {
         headers: {
@@ -81,16 +497,28 @@ function Warehouses() {
         },
       })
       .then((res) => {
+        const address = res.data ?? "";
         setSelectedWarehouse(res.data);
-        return res;
-      })
-      .then((res) => {
-        setOpenModal(true);
+        setFirstName(address?.first_name ?? "");
+        setLastName(address?.last_name ?? "");
+        setNickName(address?.nick_name ?? "");
+        setPhone(address?.phone ?? "");
+        setEmail(address?.email ?? "");
+        setCompanyName(address?.company_name ?? "");
+        setAddressLine1(address?.address_line1 ?? "");
+        setAddressLine2(address?.address_line2 ?? "");
+        setAddressLine3(address?.address_line3 ?? "");
+        setCity(address?.city_locality ?? "");
+        setStateProvince(address?.state_province ?? "");
+        setPostalCode(address?.postal_code ?? "");
+        SetCountryCode(address?.country_code ?? "");
+        handleOpen();
       });
   };
 
   const fetchWarehouses = () => {
     if (token.length) {
+      // console.log(`in Orders useEffect hook if(props.length), ${token}`);
       axios
         .get(`${host}/warehouses`, {
           headers: {
@@ -105,456 +533,67 @@ function Warehouses() {
   };
 
   useEffect(() => {
+    console.log(`warehouse fetch is occurring`);
     fetchWarehouses();
   }, [token]);
 
-  const WarehouseEditor = (props) => {
-    /*
-    required props:
-     !first_name ||
-    !last_name ||
-    !nick_name ||
-    !phone ||
-    !address_line1 ||
-    !city_locality ||
-    !state_province ||
-    !postal_code ||
-    !country_code
-
-    all props:
-    {
-    first_name,
-    last_name,
-    nick_name,
-    phone,
-    email,
-    company_name,
-    address_line1,
-    address_line2,
-    address_line3,
-    city_locality,
-    state_province,
-    postal_code,
-    country_code,
-    address_residential_indicator,
-  }
-
-    */
-    const [first_name, setFirstName] = useState(null);
-    const [last_name, setLastName] = useState(null);
-    const [nick_name, setNickName] = useState(null);
-    const [phone, setPhone] = useState(null);
-    const [email, setEmail] = useState(null);
-    const [company_name, setCompanyName] = useState(null);
-    const [address_line1, setAddressLine1] = useState(null);
-    const [address_line2, setAddressLine2] = useState(null);
-    const [address_line3, setAddressLine3] = useState(null);
-    const [city_locality, setCity] = useState(null);
-
-    const [state_province, setStateProvince] = useState(null);
-    const [stateError, setStateError] = useState(false);
-    const [stateHelper, setStateHelper] = useState("");
-    const handleStateInput = (e) => {
-      const value = e.target.value;
-      setStateProvince(value);
-
-      // Validate the input value using the pattern
-      if (value && !/^[A-Z]{2}$/.test(value)) {
-        setStateError(true);
-        setStateHelper("Please enter a valid 2-letter State code (e.g. TX)");
-      } else {
-        setStateError(false);
-        setStateHelper("");
-      }
-    };
-
-    const [postal_code, setPostalCode] = useState(null);
-    const [country_code, SetCountryCode] = useState(null);
-    const [countryError, setCountryError] = useState(false);
-    const [countryHelper, setCountryHelper] = useState("");
-    const handleCountryInput = (e) => {
-      const value = e.target.value;
-      SetCountryCode(value);
-
-      // Validate the input value using the pattern
-      if (value && !/^[A-Z]{2}$/.test(value)) {
-        setCountryError(true);
-        setCountryHelper(
-          "Please enter a valid 2-letter Country code (e.g. US)"
-        );
-      } else {
-        setCountryError(false);
-        setCountryHelper("");
-      }
-    };
-    // const [address_residential_indicator, setResidential] = useState(null);
-
-    // frontend is responsible for formatting request to ShipEngine
-    // circular reference in address_residential_indicator code
-    // (something in the MUI implementation)
-    // will iron this out at a later time.
-
-    const [open2, setOpen2] = useState(false);
-    const handleOpen2 = () => setOpen2(true);
-    const handleClose2 = () => {
-      setOpen2(false);
-      setFirstName(null);
-      setLastName(null);
-      setNickName(null);
-      setPhone(null);
-      setEmail(null);
-      setCompanyName(null);
-      setAddressLine1(null);
-      setAddressLine2(null);
-      setAddressLine3(null);
-      setCity(null);
-      setStateProvince(null);
-      setPostalCode(null);
-      SetCountryCode(null);
-      // setResidential(null)
-    };
-
-    const navigate = useNavigate();
-    return (
-      <div>
-        <Button
-          style={{ margin: 10 }}
-          variant="contained"
-          onClick={handleOpen2}
-        >
-          Create Warehouse
-        </Button>
-        <Modal
-          className="scrollable-content"
-          open={open2}
-          onClose={handleClose2}
-          aria-labelledby="modal-modal-title"
-          aria-describedby="modal-modal-description"
-        >
-          <Box sx={style2}>
-            <h2
-              style={{
-                marginTop: 0,
-                fontWeight: 625,
-              }}
-            >
-              Create Warehouse
-            </h2>
-            <form
-              className="form"
-              onSubmit={(e) => {
-                e.preventDefault();
-                console.log(props.action);
-                if (props.action === "CREATE") {
-                  console.log(`SUCCESS`);
-                  axios
-                    .post(
-                      `${host}/warehouses/verify`,
-                      {
-                        name: `${first_name} ${last_name}`,
-                        phone,
-                        email,
-                        company_name,
-                        address_line1,
-                        address_line2,
-                        address_line3,
-                        city_locality,
-                        state_province,
-                        postal_code,
-                        country_code,
-                        // address_residential_indicator,
-                      },
-                      {
-                        headers: {
-                          Authorization: `Bearer ${token}`,
-                        },
-                      }
-                    )
-                    .then((res) => {
-                      // ^^ this .then be turned off for production
-                      // console.log(res.data);
-                      // return res;
-                      if (res.data.status === "verified") {
-                        axios.post(
-                          `${host}/warehouses/`,
-                          {
-                            first_name,
-                            last_name,
-                            nick_name,
-                            phone,
-                            email,
-                            company_name,
-                            address_line1,
-                            address_line2,
-                            address_line3,
-                            city_locality,
-                            state_province,
-                            postal_code,
-                            country_code,
-                            // address_residential_indicator,
-                          },
-                          {
-                            headers: {
-                              Authorization: `Bearer ${token}`,
-                            },
-                          }
-                        );
-                        handleClose2();
-                        navigate("/warehouses");
-                        fetchWarehouses();
-                      } else {
-                        alert(
-                          "Address validation failed, check your address information. It is required that you input a valid address"
-                        );
-                      }
-                    });
-                }
-              }}
-            >
-              <TextField
-                label="First Name"
-                variant="outlined"
-                required
-                type="text"
-                value={first_name}
-                onChange={(e) => {
-                  setFirstName(e.target.value);
-                }}
-              />
-              <TextField
-                label="Last Name"
-                variant="outlined"
-                required
-                type="text"
-                value={last_name}
-                onChange={(e) => {
-                  setLastName(e.target.value);
-                }}
-              />
-
-              <TextField
-                label="Nickname"
-                required
-                type="text"
-                value={nick_name}
-                onChange={(e) => {
-                  setNickName(e.target.value);
-                }}
-              />
-              <TextField
-                label="Phone (555-444-4321)"
-                required
-                // multiline
-                type="text"
-                value={phone}
-                onChange={(e) => {
-                  setPhone(e.target.value);
-                }}
-              />
-              <TextField
-                label="Email (example@example.com)"
-                required
-                // multiline
-                type="text"
-                value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                }}
-              />
-              <TextField
-                label="Company Name"
-                type="text"
-                value={company_name}
-                onChange={(e) => {
-                  setCompanyName(e.target.value);
-                }}
-              />
-              <TextField
-                label="Address Line 1"
-                required
-                // multiline
-                type="text"
-                value={address_line1}
-                onChange={(e) => {
-                  setAddressLine1(e.target.value);
-                }}
-              />
-              <TextField
-                label="Address Line 2"
-                type="text"
-                value={address_line2}
-                onChange={(e) => {
-                  setAddressLine2(e.target.value);
-                }}
-              />
-              <TextField
-                label="Address Line 3"
-                type="text"
-                value={address_line3}
-                onChange={(e) => {
-                  setAddressLine3(e.target.value);
-                }}
-              />
-              <TextField
-                label="City"
-                required
-                type="text"
-                value={city_locality}
-                onChange={(e) => {
-                  setCity(e.target.value);
-                }}
-              />
-              <TextField
-                label="State (TX, not Texas)"
-                required
-                type="text"
-                value={state_province}
-                onChange={handleStateInput}
-                error={stateError}
-                helperText={stateHelper}
-              />
-              <TextField
-                label="Postal Code"
-                required
-                type="text"
-                value={postal_code}
-                onChange={(e) => {
-                  setPostalCode(e.target.value);
-                }}
-              />
-              <TextField
-                label="Country Code (US, not United States)"
-                required
-                // pattern="[A-Z]{2}"
-                // (doesn't work with MUI TextField)
-                type="text"
-                value={country_code}
-                onChange={handleCountryInput}
-                error={countryError}
-                helperText={countryHelper}
-              />
-              {
-                // This doesn't work right now, and I don't have the bandwidth to fix it.
-                /* <FormControl>
-                <FormLabel id="demo-radio-buttons-group-label">
-                  Is this a residential address?
-                </FormLabel>
-                <RadioGroup
-                  row
-                  aria-labelledby="demo-radio-buttons-group-label"
-                  defaultValue="no"
-                  name="radio-buttons-group"
-                  value={address_residential_indicator}
-                  onChange={setResidential}
-                >
-                  <FormControlLabel value="no" control={<Radio />} label="No" />
-                  <FormControlLabel
-                    value="yes"
-                    control={<Radio />}
-                    label="Yes"
-                  />
-                  <FormControlLabel
-                    value="unknown"
-                    control={<Radio />}
-                    label="Unknown"
-                  />
-                </RadioGroup>
-              </FormControl> */
-              }
-
-              <br />
-              <input
-                type="submit"
-                className="submit"
-                value="Create Warehouse!"
-              />
-            </form>
-          </Box>
-        </Modal>
-      </div>
-    );
-  };
-
   return (
     <>
-      <WarehouseEditor action="CREATE" />
-      {!warehouses.length ? (
-        <p>(No warehouses to show)</p>
-      ) : (
-        <>
-          {/* This Modal is the one that's mapped over */}
-          <Modal
-            open={open}
-            onClose={handleClose}
-            aria-labelledby="modal-modal-title"
-            aria-describedby="modal-modal-description"
-          >
-            <Box sx={style}>
-              <Typography id="modal-modal-title" variant="h6" component="h2">
-                {selectedWarehouse?.nick_name}
-              </Typography>
-              <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                {selectedWarehouse?.address_line1}
-              </Typography>
-              <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                {selectedWarehouse?.address_line2}
-              </Typography>
-              <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                {selectedWarehouse?.address_line3}
-              </Typography>
-              <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                {`${selectedWarehouse?.city_locality}, ${selectedWarehouse?.state_province} ${selectedWarehouse?.postal_code}`}
-              </Typography>
-            </Box>
-          </Modal>
-          {/* END Modal that's mapped over */}
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Warehouse ID</TableCell>
-                <TableCell>Nickname</TableCell>
-                <TableCell>Company Name</TableCell>
-                <TableCell>Address Line 1</TableCell>
-                <TableCell>City</TableCell>
-                <TableCell>State</TableCell>
-                <TableCell>Postal Code</TableCell>
+      <Button
+        style={{ margin: 10 }}
+        variant="contained"
+        onClick={() => {
+          setModalType("CREATE");
+          //   console.log(modalType);
+          handleOpen();
+        }}
+      >
+        Create Warehouse
+      </Button>
+      <WarehouseEditor />
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell>Warehouse ID</TableCell>
+            <TableCell>Nickname</TableCell>
+            <TableCell>Company Name</TableCell>
+            <TableCell>Address Line 1</TableCell>
+            <TableCell>City</TableCell>
+            <TableCell>State</TableCell>
+            <TableCell>Postal Code</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {warehouses.map((warehouse, index) => {
+            return (
+              <TableRow key={warehouse.warehouse_id} className="table-row">
+                {[
+                  warehouse.warehouse_id,
+                  warehouse.nick_name,
+                  warehouse.company_name,
+                  warehouse.address_line1,
+                  warehouse.city_locality,
+                  warehouse.state_province,
+                  warehouse.postal_code,
+                ].map((property, idx) => {
+                  return (
+                    <TableCell key={`${property}${idx}`}>
+                      <span
+                        onClick={() => {
+                          setModalType("UPDATE");
+                          handleWarehouseClick(warehouse.warehouse_id);
+                        }}
+                      >
+                        {property}
+                      </span>
+                    </TableCell>
+                  );
+                })}
               </TableRow>
-            </TableHead>
-            <TableBody>
-              {warehouses.map((warehouse, index) => {
-                return (
-                  <TableRow className="table-row" key={warehouse.warehouse_id}>
-                    {[
-                      warehouse.warehouse_id,
-                      warehouse.nick_name,
-                      warehouse.company_name,
-                      warehouse.address_line1,
-                      warehouse.city_locality,
-                      warehouse.state_province,
-                      warehouse.postal_code,
-                    ].map((property) => {
-                      return (
-                        <TableCell key={Math.random()}>
-                          <span
-                            onClick={() => {
-                              handleWarehouseClick(warehouse.warehouse_id);
-                              handleOpen();
-                            }}
-                          >
-                            {property}
-                          </span>
-                        </TableCell>
-                      );
-                    })}
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </>
-      )}
+            );
+          })}
+        </TableBody>
+      </Table>
     </>
   );
 }
-
-export default Warehouses;

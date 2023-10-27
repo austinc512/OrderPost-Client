@@ -74,8 +74,8 @@ const CustomerEditor = () => {
     // more modal stuff
     handleClose,
     // resource list
-    // don't think this exists in global storage yet.
     setCustomers,
+    customers,
     // need to set ship_to_id on customer click.
     ship_to_id,
   } = useCustomerEditor();
@@ -89,7 +89,7 @@ const CustomerEditor = () => {
     const value = e.target.value;
     setStateProvince(value);
 
-    // Validate the input value using the pattern
+    // Validate state input (ex: TX)
     if (value && !/^[A-Z]{2}$/.test(value)) {
       setStateError(true);
       setStateHelper("Please enter a valid 2-letter State code (e.g. TX)");
@@ -287,7 +287,10 @@ const CustomerEditor = () => {
       // path param: customer ID
       // body: first_name, last_name, phone, email
 
-      customer_id = selectedCustomer.customer_id;
+      customer_id = selectedCustomer;
+      // need to get customer_id from list of customers
+      // this is a hot-fix for IF a customer exists, but the do not have an address.
+
       console.log({
         first_name,
         last_name,
@@ -381,8 +384,33 @@ const CustomerEditor = () => {
     }
   };
 
-  const handleDelete = () => {
-    console.log(`need to delete customer`);
+  const handleDelete = async (e) => {
+    // UPDATE modal sets selectedCustomer, which has customer_id property
+    // handleCustomerClick will set customer_id
+    // handleCustomerClick => setSelctedCustomer(address.customer_id)
+    e.preventDefault();
+    if (!selectedCustomer) {
+      alert(`no customer is selected`);
+      return;
+    }
+
+    console.log({ selectedCustomer });
+    try {
+      await axios.delete(
+        `${host}/customers/${selectedCustomer}`,
+        // axios.delete doesn't need a req body
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      fetchCustomers();
+      handleClose();
+    } catch (err) {
+      console.log(err);
+      alert(`an error occurred in the delete customer step`);
+    }
   };
 
   return (
@@ -521,7 +549,7 @@ const CustomerEditor = () => {
               type="submit"
               className="submit"
               value={
-                modalType === "CREATE" ? "Create Product!" : "Update Product!"
+                modalType === "CREATE" ? "Create Customer!" : "Update Customer!"
               }
             />
             {modalType === "UPDATE" ? (
@@ -563,6 +591,10 @@ export default function Customers() {
 
   const handleCustomerClick = (customer_id) => {
     console.log(customer_id);
+    // customer_id is getting passed from the mapped over customers into this function
+    // I can setSelectedCustomer(customer_id) here
+    // then in update/delete stuff I can use that value accordingly
+    setSelectedCustomer(customer_id);
     axios
       .get(`${host}/customers/${customer_id}/addresses`, {
         headers: {
@@ -572,8 +604,9 @@ export default function Customers() {
       .then((res) => {
         // this is returning an array
         // another place where wanting to support multiple customer addresses is rearing its ugly head.
+
         const address = res.data?.data[0] ?? "";
-        setSelectedCustomer(address);
+        // if there's no addresses returned, then no customer_id will be shown
         setFirstName(address?.first_name ?? "");
         setLastName(address?.last_name ?? "");
         setPhone(address?.phone ?? "");
@@ -602,7 +635,7 @@ export default function Customers() {
         })
         .then((res) => {
           setCustomers(res.data.data);
-          // console.log(res.data.data);
+          console.log(res.data.data);
         });
     }
   };

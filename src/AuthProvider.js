@@ -219,3 +219,114 @@ export const CustomerEditorProvider = ({ children }) => {
     </CustomerContext.Provider>
   );
 };
+
+// create context
+const WarehouseContext = createContext();
+
+// export useContext
+export const useWarehouseEditor = () => {
+  return useContext(WarehouseContext);
+};
+
+export const WarehouseEditorProvider = ({ children }) => {
+  // modal stuff
+  const [openModal, setOpenModal] = useState(false);
+  const [modalType, setModalType] = useState("");
+
+  // I believe this one only controls ID value
+  const [selectedWarehouse, setSelectedWarehouse] = useState("");
+
+  // active resource stuff
+  const [first_name, setFirstName] = useState("");
+  const [last_name, setLastName] = useState("");
+
+  const [nick_name, setNickName] = useState("");
+
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [company_name, setCompanyName] = useState("");
+  const [address_line1, setAddressLine1] = useState("");
+  const [address_line2, setAddressLine2] = useState("");
+  const [address_line3, setAddressLine3] = useState("");
+  const [city_locality, setCity] = useState("");
+
+  const [state_province, setStateProvince] = useState("");
+
+  const [postal_code, setPostalCode] = useState("");
+  const [country_code, SetCountryCode] = useState("");
+
+  // resource list
+  const [warehouses, setWarehouses] = useState([]);
+
+  // opening and closing modal
+  const handleOpen = () => setOpenModal(true);
+  const handleClose = () => {
+    setModalType("");
+    setOpenModal(false);
+    // other active resource resets
+    setSelectedWarehouse("");
+    setFirstName("");
+    setLastName("");
+    setNickName("");
+    setPhone("");
+    setEmail("");
+    setCompanyName("");
+    setAddressLine1("");
+    setAddressLine2("");
+    setAddressLine3("");
+    setCity("");
+    setStateProvince("");
+    setPostalCode("");
+    SetCountryCode("");
+  };
+
+  return (
+    <WarehouseContext.Provider
+      value={{
+        // modal stuff
+        openModal,
+        setOpenModal,
+        modalType,
+        setModalType,
+        // active resource
+        selectedWarehouse,
+        setSelectedWarehouse,
+        first_name,
+        setFirstName,
+        nick_name,
+        setNickName,
+        last_name,
+        setLastName,
+        phone,
+        setPhone,
+        email,
+        setEmail,
+        company_name,
+        setCompanyName,
+        address_line1,
+        setAddressLine1,
+        address_line2,
+        setAddressLine2,
+        address_line3,
+        setAddressLine3,
+        city_locality,
+        setCity,
+        state_province,
+        setStateProvince,
+        postal_code,
+        setPostalCode,
+        country_code,
+        SetCountryCode,
+        // more modal stuff
+        handleOpen,
+        handleClose,
+        // resource list
+        warehouses,
+        setWarehouses,
+        // aliases
+      }}
+    >
+      {children}
+    </WarehouseContext.Provider>
+  );
+};
