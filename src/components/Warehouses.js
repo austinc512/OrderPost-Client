@@ -488,6 +488,8 @@ export default function Warehouses() {
     setWarehouses,
   } = useWarehouseEditor();
 
+  console.log(`Warehouse component render`);
+
   const handleWarehouseClick = (warehouse_id) => {
     console.log(warehouse_id);
     axios

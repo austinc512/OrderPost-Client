@@ -20,7 +20,7 @@ const Navigation = () => {
       </div>
       <div className="nav-right">
         <Link to="/tutorial">TUTORIAL</Link>
-        {token.length ? <Link to="/testing">Testing</Link> : null}
+        {/* {token.length ? <Link to="/testing">Testing</Link> : null} */}
         {token.length ? <Link to="/orders">Orders</Link> : null}
         {token.length ? <Link to="/products">Products</Link> : null}
         {token.length ? <Link to="/customers">Customers</Link> : null}

@@ -330,3 +330,203 @@ export const WarehouseEditorProvider = ({ children }) => {
     </WarehouseContext.Provider>
   );
 };
+
+//create context
+const OrderEditorContext = createContext();
+
+// export useContext
+export const UseOrderEditor = () => {
+  return useContext(OrderEditorContext);
+};
+
+// export state variables
+export const OrderEditorProvider = ({ children }) => {
+  // basic modal stuff
+  const [openModal, setOpenModal] = useState(false);
+  const [modalType, setModalType] = useState("");
+
+  // global state shared among all sub-modals
+  const [open, setOpen] = useState(false);
+  const [step, setStep] = useState(0);
+  // needed for MultiStepModal
+  const handleOpen = () => {
+    setStep(1);
+    setOpen(true);
+  };
+  // A SHIT TON OF STATE NEEDS TO BE SET HERE
+  const handleClose = () => {
+    setOpen(false);
+    setStep(0); // Reset step when modal closes
+    setWarehouse("");
+    setCustomer("");
+    setOrderItems([]);
+    setOrderNumber("");
+    setTotalAmount(0);
+    setOrderWeight(1);
+    setDimX(1);
+    setDimY(1);
+    setDimZ(1);
+  };
+  const nextStep = () => setStep((prev) => prev + 1);
+  const prevStep = () => setStep((prev) => prev - 1);
+
+  // Some pieces of state are shared between MultiStepModal and each individual sub-modal:
+
+  // 1) WarehousesModal
+  const [warehouse_id, setWarehouse] = useState("");
+
+  // 2) CustomersModal
+  const [customer_id, setCustomer] = useState("");
+
+  // ProductsModal
+  // Order Items Logic needed for ProductsModal
+  const [orderItems, setOrderItems] = useState([]);
+
+  // functions for editing order_items
+  const addItem = (product_id, quantity, price) => {
+    // Check if product_id already exists in the list
+    const existingItem = orderItems.find(
+      (item) => item.product_id === product_id
+    );
+
+    if (existingItem) {
+      // Update the quantity if the product_id already exists
+      // the input element will be the source of truth
+      const updatedItems = orderItems.map((item) =>
+        item.product_id === product_id ? { ...item, quantity: quantity } : item
+      );
+      setOrderItems(updatedItems);
+    } else {
+      // Add the new order-item if it doesn't exist in the list
+      setOrderItems([...orderItems, { product_id, quantity, price }]);
+    }
+    console.log({
+      message: `addItem function has been triggered`,
+      targetProduct: { product_id, quantity },
+    });
+  };
+
+  const deleteItem = (product_id) => {
+    const updatedItems = orderItems.filter(
+      (item) => item.product_id !== product_id
+    );
+    setOrderItems(updatedItems);
+    console.log({ message: "A product has been deleted", product_id });
+  };
+
+  // Don't think I need this one
+  // The modal will have an input element to edit quantity
+  // const updateQuantity = (product_id, newQuantity) => {
+  //   const updatedItems = orderItems.map((item) =>
+  //     item.product_id === product_id ? { ...item, quantity: newQuantity } : item
+  //   );
+  //   setOrderItems(updatedItems);
+  // };
+
+  // SubmitOrder
+  // don't really want this one here.
+  const [triggerOrder, setTriggerOrder] = useState(false);
+  const [order_number, setOrderNumber] = useState("");
+
+  // need the default value for totalAmount
+  const defaultAmount = () => {
+    console.log(`default amount function running`);
+    console.log(orderItems);
+    let total = 0;
+    for (let item of orderItems) {
+      total += item.quantity * item.price;
+    }
+    return total;
+  };
+  const [total_amount, setTotalAmount] = useState(0);
+  const [order_weight, setOrderWeight] = useState(1);
+  const [dimension_x, setDimX] = useState(1);
+  const [dimension_y, setDimY] = useState(1);
+  const [dimension_z, setDimZ] = useState(1);
+
+  // defaulted values
+  const [order_date, setOrderDate] = useState(new Date().toISOString());
+  const [order_status, setOrderStatus] = useState("unshipped");
+  const [ship_by_date, setShipByDate] = useState(new Date().toISOString());
+  const [service_code, setServiceCode] = useState("usps_priority_mail");
+  const [package_code, setPackageCode] = useState("package");
+  const [confirmation, setConfirmation] = useState("none");
+  const [weight_units, setWeightUnits] = useState("pound");
+  const [dimension_units, setDimensionUnits] = useState("inch");
+
+  // setting orders list needs to happen in 2 separate places
+  const [orders, setOrders] = useState([]);
+
+  return (
+    <OrderEditorContext.Provider
+      value={{
+        // basic modal stuff
+        openModal,
+        setOpenModal,
+        modalType,
+        setModalType,
+        open,
+        setOpen,
+        step,
+        setStep,
+        // needed for MultiStepModal
+        handleOpen,
+        handleClose,
+        nextStep,
+        prevStep,
+        // WarehousesModal
+        warehouse_id,
+        setWarehouse,
+        // CustomersModal
+        customer_id,
+        setCustomer,
+        // ProductsModal
+        orderItems,
+        setOrderItems,
+        // OrderItems
+        addItem,
+        deleteItem,
+        // SubmitOrder
+        triggerOrder,
+        setTriggerOrder,
+        order_number,
+        setOrderNumber,
+        total_amount,
+        setTotalAmount,
+        order_weight,
+        setOrderWeight,
+        dimension_x,
+        setDimX,
+        dimension_y,
+        setDimY,
+        dimension_z,
+        setDimZ,
+        // defaulted values
+        order_date,
+        setOrderDate,
+        order_status,
+        setOrderStatus,
+        ship_by_date,
+        setShipByDate,
+        service_code,
+        setServiceCode,
+        package_code,
+        setPackageCode,
+        confirmation,
+        setConfirmation,
+        weight_units,
+        setWeightUnits,
+        dimension_units,
+        setDimensionUnits,
+        // global state shared among all sub-modals
+        // MultiStepModal
+        defaultAmount,
+        // setting orders list needs to happen in 2 separate places
+        orders,
+        setOrders,
+      }}
+    >
+      {children}
+    </OrderEditorContext.Provider>
+  );
+};

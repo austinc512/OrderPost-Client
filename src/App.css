@@ -137,3 +137,25 @@ body {
   width: 70vw;
   margin: 0 auto;
 }
+
+/* testing this out */
+.form-container {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.input-group {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.input-group label {
+  flex: 4;
+  /* margin-right: 10px; */
+}
+
+.input-group input {
+  flex: 2;
+}
