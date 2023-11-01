@@ -3,12 +3,10 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../AuthProvider";
 
 /*
-
 import Products from "./components/Products";
 import Customers from "./components/Customers";
 import Shipments from "./components/Shipments";
 import Warehouses from "./components/Warehouses";
-
 */
 
 const Navigation = () => {
