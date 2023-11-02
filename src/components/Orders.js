@@ -39,7 +39,6 @@ const style2 = {
   "& .MuiTextField-root": { m: 1, width: "50ch" },
 };
 
-// this is about to be a whole new world of pain
 // different modal screens will be their own functional components
 // start by implementing these along with global state
 
