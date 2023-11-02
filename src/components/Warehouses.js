@@ -304,6 +304,7 @@ const WarehouseEditor = () => {
   return (
     <div>
       <Modal
+        className="scrollable-content-2"
         open={openModal}
         onClose={handleClose}
         aria-labelledby="modal-modal-title"

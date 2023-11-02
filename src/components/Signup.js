@@ -4,7 +4,29 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../AuthProvider";
 import { Link } from "react-router-dom";
 
+import TextField from "@mui/material/TextField";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+
 const host = process.env.REACT_APP_URL;
+
+const style2 = {
+  margin: "0 auto",
+  // position: "absolute",
+  // top: "50%",
+  // left: "50%",
+  // transform: "translate(-50%, -50%)",
+  width: "50vw",
+  minWidth: 700,
+  // height: "50vh",
+  minHeight: 400,
+  bgcolor: "background.paper",
+  // border: "1px solid #000",
+  borderRadius: 1.5,
+  boxShadow: 24,
+  p: 4,
+  "& .MuiTextField-root": { m: 1, width: "50ch" },
+};
 
 const Signup = () => {
   // const { setToken } = useAuth();
@@ -14,6 +36,7 @@ const Signup = () => {
   const [last_name, set_last_name] = useState("");
   const [email, setEmail] = useState("");
   //   const navigate = useNavigate();
+
   const [goHome, setGoHome] = useState(false);
 
   useEffect(() => {
@@ -22,89 +45,113 @@ const Signup = () => {
     // console.log(password);
   }, [username, password]);
 
+  const handleSubmit = () => {
+    // do something
+    axios
+      .post(`${host}/auth/register`, {
+        username,
+        password,
+        first_name,
+        last_name,
+        email,
+      })
+      .then((res) => {
+        // ^^ this .then be turned off for production
+        // console.log(res.data);
+        // return res;
+        if (res.status === 204) {
+          setGoHome(true);
+        }
+      });
+  };
+
   return (
     <>
       {!goHome ? (
-        <form
-          className="form"
-          onSubmit={(e) => {
-            // console.log({ username, password, first_name, last_name, email });
-            e.preventDefault();
-            axios
-              .post(`${host}/auth/register`, {
-                username,
-                password,
-                first_name,
-                last_name,
-                email,
-              })
-              .then((res) => {
-                // ^^ this .then be turned off for production
-                // console.log(res.data);
-                // return res;
-                if (res.status === 204) {
-                  setGoHome(true);
-                }
-              });
-          }}
-        >
-          <label className="label">
-            Username
-            <input
+        <Box sx={style2}>
+          <h2
+            style={{
+              marginTop: 0,
+              paddingTop: 0,
+              fontWeight: 625,
+              textAlign: "center",
+            }}
+          >
+            Sign Up Form
+          </h2>
+          <form className="form">
+            <TextField
+              label="Username"
+              variant="outlined"
+              required
               type="text"
               value={username}
               onChange={(e) => {
                 setUsername(e.target.value);
               }}
             />
-          </label>
-          <label className="label">
-            Password
-            <input
+            <TextField
+              label="Password"
+              variant="outlined"
+              required
               type="password"
               value={password}
               onChange={(e) => {
                 setPassword(e.target.value);
               }}
             />
-          </label>
-          <label className="label">
-            First name
-            <input
+            <TextField
+              label="First Name"
+              variant="outlined"
+              required
               type="text"
               value={first_name}
               onChange={(e) => {
                 set_first_name(e.target.value);
               }}
             />
-          </label>
-          <label className="label">
-            Last name
-            <input
+            <TextField
+              label="Last Name"
+              variant="outlined"
+              required
               type="text"
               value={last_name}
               onChange={(e) => {
                 set_last_name(e.target.value);
               }}
             />
-          </label>
-          <label className="label">
-            Email
-            <input
+            <TextField
+              label="Email"
+              variant="outlined"
+              required
               type="text"
               value={email}
               onChange={(e) => {
                 setEmail(e.target.value);
               }}
             />
-          </label>
-          <input type="submit" className="submit" value="Signup!" />
-        </form>
+
+            <Button
+              style={{
+                textAlign: "center",
+                marginLeft: "1.5%",
+                display: "block",
+              }}
+              variant="contained"
+              onClick={handleSubmit}
+            >
+              Sign Up!
+            </Button>
+          </form>
+        </Box>
       ) : null}
       {goHome ? (
-        <div>
-          You have registed successfully! <Link to="/">Please sign in!</Link>{" "}
-        </div>
+        <Box sx={{ ...style2, textAlign: "center" }}>
+          <h2>You have registed successfully!</h2>
+          <div>
+            <Link to="/">Please sign in!</Link>{" "}
+          </div>
+        </Box>
       ) : null}
     </>
   );

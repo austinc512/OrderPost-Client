@@ -3,6 +3,28 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../AuthProvider";
 
+import TextField from "@mui/material/TextField";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+
+const style2 = {
+  margin: "0 auto",
+  // position: "absolute",
+  // top: "50%",
+  // left: "50%",
+  // transform: "translate(-50%, -50%)",
+  width: "50vw",
+  minWidth: 700,
+  // height: "50vh",
+  minHeight: 400,
+  bgcolor: "background.paper",
+  // border: "1px solid #000",
+  borderRadius: 1.5,
+  boxShadow: 24,
+  p: 4,
+  "& .MuiTextField-root": { m: 1, width: "50ch" },
+};
+
 const host = process.env.REACT_APP_URL;
 
 const Signin = () => {
@@ -17,49 +39,90 @@ const Signin = () => {
     // console.log(password);
   }, [username, password]);
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    axios.post(`${host}/auth/login`, { username, password }).then((res) => {
+      setToken(res.data);
+      navigate("/orders");
+    });
+    // do something
+  };
+
   return (
     <>
-      <form
-        className="form"
-        onSubmit={(e) => {
-          // console.log({ username, password });
-          e.preventDefault();
-          axios
-            .post(`${host}/auth/login`, { username, password })
-            .then((res) => {
-              setToken(res.data);
-              navigate("/orders");
-            });
-          // ^^ this stays tho
-        }}
-      >
-        <label className="label">
-          Username
-          <input
+      <Box sx={style2}>
+        <h2
+          style={{
+            marginTop: 0,
+            paddingTop: 0,
+            fontWeight: 625,
+            textAlign: "center",
+          }}
+        >
+          Login
+        </h2>
+        <form className="form" onSubmit={handleSubmit}>
+          <TextField
+            label="Username"
+            variant="outlined"
+            required
             type="text"
             value={username}
             onChange={(e) => {
               setUsername(e.target.value);
             }}
           />
-        </label>
-        <label className="label">
-          Password
-          <input
+
+          <TextField
+            label="Password"
+            variant="outlined"
+            required
             type="password"
             value={password}
             onChange={(e) => {
               setPassword(e.target.value);
             }}
           />
-        </label>
-        <input type="submit" className="submit" value="Signin!" />
-      </form>
+          <br />
+          <Button
+            style={{
+              textAlign: "center",
+              marginLeft: "1.5%",
+            }}
+            variant="contained"
+            onClick={handleSubmit}
+          >
+            Log in!
+          </Button>
+        </form>
+      </Box>
 
       {!token.length ? (
-        <p>
-          Don't have an account? <Link to="/signup">Visit our Signup page</Link>
-        </p>
+        <div
+          style={{
+            marginTop: 50,
+            // fontWeight: 200,
+            textAlign: "center",
+            marginBottom: 0,
+          }}
+        >
+          <p
+            style={{
+              fontWeight: 345,
+            }}
+          >
+            Don't have an account?
+          </p>
+          <p
+            style={{
+              // fontWeight: 200,
+              marginTop: 0,
+              paddingTop: 0,
+            }}
+          >
+            <Link to="/signup">Visit our Signup page</Link>
+          </p>
+        </div>
       ) : null}
     </>
   );
