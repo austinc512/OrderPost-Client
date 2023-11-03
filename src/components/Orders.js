@@ -231,10 +231,12 @@ function CustomersModal(props) {
             );
           })
         : null}
-      <div className="modal-full-navigation">
-        <Button onClick={prevStep}>Back</Button>
-        <Button onClick={nextStep}>Next</Button>
-      </div>
+      {customers.length > 10 ? (
+        <div className="modal-full-navigation">
+          <Button onClick={prevStep}>Back</Button>
+          <Button onClick={nextStep}>Next</Button>
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -360,10 +362,12 @@ function ProductsModal(props) {
             );
           })
         : null}
-      <div className="modal-full-navigation">
-        <Button onClick={prevStep}>Back</Button>
-        <Button onClick={nextStep}>Next</Button>
-      </div>
+      {products.length > 10 ? (
+        <div className="modal-full-navigation">
+          <Button onClick={prevStep}>Back</Button>
+          <Button onClick={nextStep}>Next</Button>
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -376,9 +380,7 @@ function ProductItem({ product, addItem, deleteItem }) {
   const checkExistingProduct = orderItems.find(
     (item) => item.product_id === product.product_id
   );
-  const [quantity, setQuantity] = useState(
-    checkExistingProduct?.quantity || null
-  );
+  const [quantity, setQuantity] = useState(checkExistingProduct?.quantity || 0);
 
   // need to control inputs for product editing
   const [isActive, setIsActive] = useState(false);
@@ -504,11 +506,17 @@ function SubmitOrder() {
     orderItems,
     // this component needs to fetch orders too
     setOrders,
+    // testing
   } = UseOrderEditor();
+
+  // need some error state for this component.
+  const [errorMessage, setErrorMessage] = useState("");
 
   const navigate = useNavigate();
 
   const handleSubmit = async (type) => {
+    // get rid of existing error upon submission
+    setErrorMessage("");
     // pass an argument to this function to deal with the case
     // values: "create", "create/ship", "update", "update/ship"
     // something like that
@@ -570,6 +578,11 @@ function SubmitOrder() {
     };
 
     async function createOrder(body) {
+      // handle missing info for order creation
+      if (!order_number) {
+        setErrorMessage("Missing Order Number");
+        return false;
+      }
       let order_id = null;
       let OrderResponse = await axios
         .post(`${host}/orders`, body, {
@@ -632,7 +645,22 @@ function SubmitOrder() {
         });
     }
 
+    // should allow an order to be created without a service_code, warehouse, etc.
+    // but if I'm trying to create a label, then I should handle missing fields
+    // I still need to handle create vs update order logic though.
+    // for quality of life, I'll just implement this here now, but this will change later
+
     async function createShipment(orderId) {
+      if (!dimension_x || !dimension_y || !dimension_x) {
+        setErrorMessage("Missing one or more dimensions");
+        return false;
+      } else if (!order_weight) {
+        setErrorMessage("Missing Order Weight");
+        return false;
+      } else if (!service_code) {
+        setErrorMessage("Missing Service Code");
+        return false;
+      }
       let shipmentReturn;
       let statusCheck;
       let shipmentApiRequest = await axios
@@ -657,6 +685,7 @@ function SubmitOrder() {
         );
       }
     }
+
     if (modalType === "CREATE" && type === "create/ship") {
       const order_id = await createOrder({
         // payload
@@ -678,6 +707,9 @@ function SubmitOrder() {
         dimension_units,
         warehouse_id,
       });
+      if (!order_id) {
+        return;
+      }
       createShipment(order_id);
     } else if (modalType === "CREATE" && type === "create") {
       // create and then fetchOrders
@@ -736,6 +768,20 @@ function SubmitOrder() {
       </div>
 
       <div className="input-group">
+        <label>Service Code</label>
+        <select
+          style={{ width: 154 }}
+          id="serviceCodeSelect"
+          value={service_code}
+          onChange={(e) => setServiceCode(e.target.value)}
+        >
+          <option value="usps_priority_mail">USPS Priority Mail</option>
+          <option value="ups_ground">UPS Ground</option>
+          <option value="fedex_ground">FedEx Ground</option>
+        </select>
+      </div>
+
+      <div className="input-group">
         <label>Order Weight (lbs)</label>
         <input
           type="number"
@@ -750,6 +796,7 @@ function SubmitOrder() {
           type="number"
           value={dimension_x}
           onChange={(e) => setDimX(e.target.value)}
+          min={0}
         />
       </div>
 
@@ -759,6 +806,7 @@ function SubmitOrder() {
           type="number"
           value={dimension_y}
           onChange={(e) => setDimY(e.target.value)}
+          min={0}
         />
       </div>
 
@@ -768,6 +816,7 @@ function SubmitOrder() {
           type="number"
           value={dimension_z}
           onChange={(e) => setDimZ(e.target.value)}
+          min={0}
         />
       </div>
 
@@ -810,6 +859,7 @@ function SubmitOrder() {
           Update And Ship!
         </Button>
       ) : null}
+      {errorMessage && <p className="error-message">Error: {errorMessage}</p>}
     </div>
   );
 }
