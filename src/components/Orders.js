@@ -651,7 +651,14 @@ function SubmitOrder() {
     // for quality of life, I'll just implement this here now, but this will change later
 
     async function createShipment(orderId) {
-      if (!dimension_x || !dimension_y || !dimension_x) {
+      if (
+        !dimension_x ||
+        !dimension_y ||
+        !dimension_x ||
+        dimension_x === "0" ||
+        dimension_y === "0" ||
+        dimension_z === "0"
+      ) {
         setErrorMessage("Missing one or more dimensions");
         return false;
       } else if (!order_weight) {
@@ -713,7 +720,7 @@ function SubmitOrder() {
       createShipment(order_id);
     } else if (modalType === "CREATE" && type === "create") {
       // create and then fetchOrders
-      await createOrder({
+      const order = await createOrder({
         // payload
         customer_id,
         order_number: `${order_number}`,
@@ -733,6 +740,9 @@ function SubmitOrder() {
         dimension_units,
         warehouse_id,
       });
+      if (!order) {
+        return;
+      }
       fetchOrders();
       handleClose();
     }
