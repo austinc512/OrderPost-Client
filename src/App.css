@@ -167,3 +167,7 @@ body {
 .error-message {
   text-align: center;
 }
+
+a:visited {
+  text-decoration: none;
+}

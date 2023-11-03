@@ -112,34 +112,36 @@ function Shipments() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {shipments.map((shipment, index) => {
-              return (
-                <TableRow key={shipment.shipment_id}>
-                  <TableCell>{shipment.order_number}</TableCell>
-                  <TableCell>{shipment.shipment_id}</TableCell>
-                  <TableCell>{shipment.service_code}</TableCell>
-                  <TableCell>{shipment.package_code}</TableCell>
-                  <TableCell>
-                    {unitConverter(
-                      shipment.order_weight,
-                      shipment.weight_units
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <a
-                      href={shipment.label_reference}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{ textDecoration: "none" }}
-                    >
-                      <Button variant="contained" color="primary">
-                        Open Link
-                      </Button>
-                    </a>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
+            {shipments
+              .map((shipment, index) => {
+                return (
+                  <TableRow key={shipment.shipment_id}>
+                    <TableCell>{shipment.order_number}</TableCell>
+                    <TableCell>{shipment.shipment_id}</TableCell>
+                    <TableCell>{shipment.service_code}</TableCell>
+                    <TableCell>{shipment.package_code}</TableCell>
+                    <TableCell>
+                      {unitConverter(
+                        shipment.order_weight,
+                        shipment.weight_units
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <a
+                        href={shipment.label_reference}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ textDecoration: "none" }}
+                      >
+                        <Button variant="contained" color="primary">
+                          Open Link
+                        </Button>
+                      </a>
+                    </TableCell>
+                  </TableRow>
+                );
+              })
+              .sort((a, b) => Number(a.shipment_id) - Number(b.shipment_id))}
           </TableBody>
         </Table>
       )}

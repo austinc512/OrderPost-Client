@@ -24,6 +24,37 @@ import HowTo from "./components/HowTo";
 // I need a space to test components
 import Testing from "./components/Testing";
 
+import Box from "@mui/material/Box";
+
+const style2 = {
+  margin: "0 auto",
+  // position: "absolute",
+  // top: "50%",
+  // left: "50%",
+  // transform: "translate(-50%, -50%)",
+  width: "50vw",
+  minWidth: 700,
+  // height: "50vh",
+  minHeight: 400,
+  bgcolor: "background.paper",
+  // border: "1px solid #000",
+  borderRadius: 1.5,
+  boxShadow: 24,
+  p: 4,
+  "& .MuiTextField-root": { m: 1, width: "50ch" },
+};
+
+const NotLoggedIn = () => {
+  return (
+    <Box sx={{ ...style2, textAlign: "center" }}>
+      <h2>Oops... It looks like you're not logged in!</h2>
+      <div>
+        <Link to="/">Please sign in!</Link>{" "}
+      </div>
+    </Box>
+  );
+};
+
 // then define their routes
 
 const useCheckAuth = () => {
@@ -36,11 +67,7 @@ const ProtectedRoute = (props) => {
   const { component: Component, ...rest } = props;
   // const navigate = useNavigate();
 
-  return useCheckAuth() === true ? (
-    <Component {...rest} />
-  ) : (
-    <Link to="/">Login</Link>
-  );
+  return useCheckAuth() === true ? <Component {...rest} /> : <NotLoggedIn />;
 };
 
 const Router = () => {
