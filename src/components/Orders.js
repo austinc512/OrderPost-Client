@@ -88,7 +88,6 @@ function WarehousesModal() {
                     : ""
                 }`}
                 onClick={() => {
-                  // const [warehouse_id, setWarehouse] = useState(null);
                   setWarehouse(element.warehouse_id);
                 }}
               >
@@ -250,7 +249,6 @@ function ProductsModal(props) {
     nextStep
     customer_id
     order_id -- I think I need the last 2 to fetch order_items in this component
-      
   */
   const { token } = useAuth();
   // resource list can remain only within this component
@@ -283,15 +281,6 @@ function ProductsModal(props) {
   or do I just need setOrderItems?
 
   */
-
-  // passed products back up to order
-  // needs to be refactored using orderItems and setOrderItems
-  // whatever happens, I don't think I need this
-  // what does this do?
-  // const [addProduct, setAddProducts] = useState(
-  //   props.products?.length ? props.products : []
-  // );
-  // if products exists in the top-level CreateOrder component, use that value
 
   const fetchProducts = () => {
     if (products.length === 0 && step === 3) {

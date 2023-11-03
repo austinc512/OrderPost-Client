@@ -33,19 +33,27 @@ const Signin = () => {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
+  const [errorMessage, setErrorMessage] = useState("");
+
   useEffect(() => {
     // console.log({ username, password });
     // console.log(username);
     // console.log(password);
   }, [username, password]);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    axios.post(`${host}/auth/login`, { username, password }).then((res) => {
+  const handleSubmit = async () => {
+    setErrorMessage("");
+    try {
+      const res = await axios.post(`${host}/auth/login`, {
+        username,
+        password,
+      });
       setToken(res.data);
       navigate("/orders");
-    });
-    // do something
+    } catch (err) {
+      console.log(err.response.data);
+      setErrorMessage(err.response.data.error);
+    }
   };
 
   return (
@@ -61,7 +69,7 @@ const Signin = () => {
         >
           Login
         </h2>
-        <form className="form" onSubmit={handleSubmit}>
+        <form className="auth-form" onSubmit={handleSubmit}>
           <TextField
             label="Username"
             variant="outlined"
@@ -87,7 +95,7 @@ const Signin = () => {
           <Button
             style={{
               textAlign: "center",
-              marginLeft: "1.5%",
+              // marginLeft: "1.5%",
             }}
             variant="contained"
             onClick={handleSubmit}
@@ -95,6 +103,7 @@ const Signin = () => {
             Log in!
           </Button>
         </form>
+        {errorMessage && <p className="error-message">Error: {errorMessage}</p>}
       </Box>
 
       {!token.length ? (

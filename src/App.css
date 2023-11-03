@@ -159,3 +159,11 @@ body {
 .input-group input {
   flex: 2;
 }
+
+.auth-form {
+  text-align: center;
+}
+
+.error-message {
+  text-align: center;
+}

@@ -35,7 +35,8 @@ const Signup = () => {
   const [first_name, set_first_name] = useState("");
   const [last_name, set_last_name] = useState("");
   const [email, setEmail] = useState("");
-  //   const navigate = useNavigate();
+
+  const [errorMessage, setErrorMessage] = useState("");
 
   const [goHome, setGoHome] = useState(false);
 
@@ -45,24 +46,24 @@ const Signup = () => {
     // console.log(password);
   }, [username, password]);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     // do something
-    axios
-      .post(`${host}/auth/register`, {
+
+    try {
+      const res = await axios.post(`${host}/auth/register`, {
         username,
         password,
         first_name,
         last_name,
         email,
-      })
-      .then((res) => {
-        // ^^ this .then be turned off for production
-        // console.log(res.data);
-        // return res;
-        if (res.status === 204) {
-          setGoHome(true);
-        }
       });
+      if (res.status === 204) {
+        setGoHome(true);
+      }
+    } catch (err) {
+      console.log(err.response.data);
+      setErrorMessage(err.response.data.error);
+    }
   };
 
   return (
@@ -79,7 +80,7 @@ const Signup = () => {
           >
             Sign Up Form
           </h2>
-          <form className="form">
+          <form className="auth-form">
             <TextField
               label="Username"
               variant="outlined"
@@ -130,12 +131,12 @@ const Signup = () => {
                 setEmail(e.target.value);
               }}
             />
-
+            <br />
             <Button
               style={{
                 textAlign: "center",
-                marginLeft: "1.5%",
-                display: "block",
+                // marginLeft: "1.5%",
+                // display: "block",
               }}
               variant="contained"
               onClick={handleSubmit}
@@ -143,6 +144,9 @@ const Signup = () => {
               Sign Up!
             </Button>
           </form>
+          {errorMessage && (
+            <p className="error-message">Error: {errorMessage}</p>
+          )}
         </Box>
       ) : null}
       {goHome ? (
