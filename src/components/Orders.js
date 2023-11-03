@@ -140,9 +140,11 @@ function WarehousesModal() {
             );
           })
         : null}
-      <div className="modal-warehouse-next">
-        <Button onClick={nextStep}>Next →</Button>
-      </div>
+      {warehouses.length > 5 ? (
+        <div className="modal-warehouse-next">
+          <Button onClick={nextStep}>Next →</Button>
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -651,6 +653,10 @@ function SubmitOrder() {
     // for quality of life, I'll just implement this here now, but this will change later
 
     async function createShipment(orderId) {
+      if (!order_number) {
+        setErrorMessage("Missing Order Number");
+        return false;
+      }
       if (
         !dimension_x ||
         !dimension_y ||
