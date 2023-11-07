@@ -10,12 +10,14 @@ import {
   TableCell,
   TableHead,
   TableRow,
+  Box,
+  Button,
 } from "@mui/material";
 // import DeleteIcon from "@mui/icons-material/Delete";
 import Modal from "@mui/material/Modal";
 
-import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
+// import Box from "@mui/material/Box";
+// import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import TextField from "@mui/material/TextField";
 
@@ -387,9 +389,9 @@ function ProductItem({ product, addItem, deleteItem }) {
   // need to control inputs for product editing
   const [isActive, setIsActive] = useState(false);
 
-  useEffect(() => {
-    console.log({ checkExistingProduct });
-  }, [checkExistingProduct]);
+  // useEffect(() => {
+  //   console.log({ checkExistingProduct });
+  // }, [checkExistingProduct]);
 
   const handleQuantityChange = (e) => {
     const newQuantity = parseInt(e.target.value, 10);
@@ -508,11 +510,15 @@ function SubmitOrder() {
     orderItems,
     // this component needs to fetch orders too
     setOrders,
-    // testing
+    // can I get all the info needed to pass through to ShipEngine?
+    warehouses,
   } = UseOrderEditor();
 
   // need some error state for this component.
   const [errorMessage, setErrorMessage] = useState("");
+
+  // need state for rates.
+  const [rate, setRate] = useState("");
 
   const navigate = useNavigate();
 
@@ -754,6 +760,104 @@ function SubmitOrder() {
     }
   };
 
+  async function getRates() {
+    setErrorMessage("");
+    setRate("");
+    console.log(`inside rates function`);
+    console.log({
+      service_code,
+      customer_id,
+      warehouse_id,
+      order_weight,
+      weight_units,
+      dimension_x,
+      dimension_y,
+      dimension_z,
+      dimension_units,
+      package_code,
+    });
+    const missingInfo = [];
+    if (!service_code) {
+      missingInfo.push("service code");
+    }
+    if (!customer_id) {
+      missingInfo.push("customer");
+    }
+    if (!warehouse_id) {
+      missingInfo.push("warehouse");
+    }
+    if (!+order_weight) {
+      missingInfo.push("order weight");
+    }
+    if (!weight_units) {
+      missingInfo.push("weight units");
+    }
+    if (!dimension_x) {
+      missingInfo.push("dimension X");
+    }
+    if (!dimension_y) {
+      missingInfo.push("dimension Y");
+    }
+    if (!dimension_z) {
+      missingInfo.push("dimension Z");
+    }
+    if (!dimension_units) {
+      missingInfo.push("dimension units");
+    }
+    if (!package_code) {
+      missingInfo.push("package code");
+    }
+
+    if (missingInfo.length > 0) {
+      let errorMessage = "Missing required information: ";
+
+      if (missingInfo.length === 1) {
+        errorMessage += missingInfo[0];
+      } else if (missingInfo.length === 2) {
+        errorMessage += `${missingInfo[0]} and ${missingInfo[1]}`;
+      } else {
+        errorMessage +=
+          missingInfo.slice(0, -1).join(", ") +
+          ", and " +
+          missingInfo[missingInfo.length - 1];
+      }
+
+      setErrorMessage(errorMessage);
+      return;
+    }
+    let ratesApiRequest;
+    try {
+      ratesApiRequest = await axios
+        // axios.post requires a request body
+        // working around this with an empty object
+        .post(
+          `${host}/orders/rates`,
+          {
+            service_code,
+            customer_id,
+            warehouse_id,
+            order_weight,
+            weight_units,
+            dimension_x,
+            dimension_y,
+            dimension_z,
+            dimension_units,
+            package_code,
+          },
+          authConfig
+        );
+      console.log(ratesApiRequest);
+      console.log(ratesApiRequest.data.totalAmount);
+      setRate(`$${ratesApiRequest.data.totalAmount}`);
+    } catch (err) {
+      console.log(err);
+      // console.log(err.response.data.errors);
+      setErrorMessage(
+        `Something went wrong with rates. Ensure all screens are completely filled out before getting rates.`
+      );
+    }
+  }
+
   // try autofill on initial render?
   useEffect(() => {
     console.log(`initialRender useEffect for defaultAmount()`);
@@ -834,47 +938,72 @@ function SubmitOrder() {
           onChange={(e) => setDimZ(e.target.value)}
           min={0}
         />
+        <br />
+      </div>
+      {rate ? <p>Rate: {rate}</p> : null}
+      <div className="order-modal-group-one">
+        <Button onClick={prevStep}>Back</Button>
+        <Button
+          disabled={
+            !service_code ||
+            !customer_id ||
+            !warehouse_id ||
+            !+order_weight ||
+            !weight_units ||
+            !dimension_x ||
+            !dimension_y ||
+            !dimension_z ||
+            !dimension_units
+              ? true
+              : false
+          }
+          onClick={getRates}
+        >
+          Get Rates
+        </Button>
       </div>
 
-      <Button onClick={prevStep}>Back</Button>
-      {modalType === "CREATE" ? (
-        <Button
-          onClick={() => {
-            handleSubmit("create/ship");
-          }}
-        >
-          Create Label!
-        </Button>
-      ) : null}
-      {modalType === "CREATE" ? (
-        <Button
-          onClick={() => {
-            if (modalType === "CREATE") {
-              handleSubmit("create");
-            }
-          }}
-        >
-          Save Order
-        </Button>
-      ) : null}
-      {modalType === "UPDATE" ? (
-        <Button
-          onClick={() => {
-            handleSubmit("update");
-          }}
-        >
-          Update Order
-        </Button>
-      ) : null}
-      {modalType === "UPDATE" ? (
-        <Button
-          onClick={() => {
-            handleSubmit("update/ship");
-          }}
-        >
-          Update And Ship!
-        </Button>
-      ) : null}
+      <div className="order-modal-group-two">
+        {modalType === "CREATE" ? (
+          <Button
+            onClick={() => {
+              handleSubmit("create/ship");
+            }}
+          >
+            Create Label!
+          </Button>
+        ) : null}
+        {modalType === "CREATE" ? (
+          <Button
+            onClick={() => {
+              if (modalType === "CREATE") {
+                handleSubmit("create");
+              }
+            }}
+          >
+            Save Order
+          </Button>
+        ) : null}
+        {modalType === "UPDATE" ? (
+          <Button
+            onClick={() => {
+              handleSubmit("update");
+            }}
+          >
+            Update Order
+          </Button>
+        ) : null}
+        {modalType === "UPDATE" ? (
+          <Button
+            onClick={() => {
+              handleSubmit("update/ship");
+            }}
+          >
+            Update And Ship!
+          </Button>
+        ) : null}
+      </div>
+
       {errorMessage && <p className="error-message">Error: {errorMessage}</p>}
     </div>
   );
