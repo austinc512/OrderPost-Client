@@ -12,6 +12,7 @@ import { BrowserRouter } from "react-router-dom";
 // import { useAuth } from "./AuthProvider";
 // app component doesn't need to handle auth token
 // maybe that info is needed later, however.
+// force redeploy
 
 function App() {
   return (
